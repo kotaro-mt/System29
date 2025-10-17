@@ -1,5 +1,3 @@
-#include <LSM303.h> // LSM303ライブラリのヘッダーファイル
-
 #define CALIBRATION_SAMPLES 70  // Number of compass readings to take when calibrating
 #define CRB_REG_M_2_5GAUSS 0x60 // CRB_REG_M の値 ： 地磁気センサーのスケールを +/-2.5 ガウスに設定
 #define CRA_REG_M_220HZ 0x1C // CRA_REG_M の値 ： 地磁気センサのアップデートレートを 220 Hz に設定

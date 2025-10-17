@@ -3,6 +3,7 @@
 #include <Wire.h> // 通信のヘッダーファイル
 #include <LSM303.h> // LSM303ライブラリのヘッダーファイル
 
+
 ZumoMotors motors;
 Pushbutton button(ZUMO_BUTTON);
 
