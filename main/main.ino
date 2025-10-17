@@ -29,3 +29,8 @@ void loop() {
   Serial.println("R:" + String(red) + " G:" + String(green) + " B:" + String(blue));
 
 }
+
+// 探索についての関数(敵陣用ロボ)
+void serch() {
+
+}
