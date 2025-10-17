@@ -2,10 +2,6 @@
 #include <Pushbutton.h> // プッシュボタンプッシュボタンライブラリのヘッダーファイル
 #include <Wire.h> // 通信のヘッダーファイル
 
-
-
-
-
 void setup() {
   Serial.begin(9600);
   Wire.begin();
