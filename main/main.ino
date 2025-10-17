@@ -1,8 +1,8 @@
-#include <ZumoMotor.h> // モーターライブラリのヘッダーファイル
+#include <ZumoMotors.h> // モーターライブラリのヘッダーファイル
 #include <Pushbutton.h> // プッシュボタンプッシュボタンライブラリのヘッダーファイル
 #include <Wire.h> // 通信のヘッダーファイル
 
-ZumoMotor motors;
+ZumoMotors motors;
 Pushbutton button(ZUMO_BUTTON);
 
 int mode = 0; // 動作モード
