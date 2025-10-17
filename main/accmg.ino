@@ -7,6 +7,9 @@ LSM303 compass;
 int mx, my, mz; // 地磁気センサーの値
 int ax, ay, az; // 加速度センサーの値
 
+// 最初の方向を記録する変数
+float initialHeading = 0.0; 
+
 void setupCompass() // 地磁気センサーのセットアップ
 {
   compass.init();
@@ -15,6 +18,9 @@ void setupCompass() // 地磁気センサーのセットアップ
   compass.writeReg(LSM303::CRA_REG_M, CRA_REG_M_220HZ); // 地磁気センサのアップデートレートを 220 Hz に設定
 
   delay(1000);
+
+  // 最初の方向（初期方位）を記録する
+  initialHeading = averageHeading();  // 初期方位を記録
 }
 
 void  calibrationCompass()
