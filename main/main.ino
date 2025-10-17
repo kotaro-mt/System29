@@ -11,3 +11,8 @@ void loop() {
   // put your main code here, to run repeatedly:
 
 }
+
+// 探索についての関数(敵陣用ロボ)
+void serch() {
+
+}
