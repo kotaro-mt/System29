@@ -8,24 +8,30 @@ Pushbutton button(ZUMO_BUTTON);
 int mode = 0; // 動作モード
 int motorL, motorR; // モーター速度
 float red,green,blue; // RGB値
+int dist; // オブジェクトまでの距離
 
 void setup() {
   Serial.begin(9600);
   Wire.begin();
   setupCompass();
+  initWaveSensor();
 
   //カラーセンサーのキャリブレーション
   button.waitForButton();
   CalibrationColorSensor();
 
   //地磁気センサのキャリブレーション
-  button.waitForButton();
-  calibrationCompass()
+  // button.waitForButton();
+  // calibrationCompass()
 }
 
 void loop() {
 
   getRGB(red, green, blue); // RGB値の取得
+  dist = distance(); // オブジェクトまでの距離の取得
+
   Serial.println("R:" + String(red) + " G:" + String(green) + " B:" + String(blue));
+  Serial.println("Distance:" + String(dist) + "cm");
+  delay(500);
 
 }
