@@ -1,5 +1,13 @@
 #include <Adafruit_TCS34725.h> // カラーセンサライブラリのヘッダーファイル
 
+#define COLORNUM 3 // 判定する色の数
+int colorValue[COLORNUM][3] = {
+  {0, 0, 0},   // 黒色の値
+  {200, 50, 50},   // 赤色の値
+  {50, 50, 200}    // 青色の値
+};
+
+
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_60X);
 
 unsigned int r_min, g_min, b_min; 
@@ -58,4 +66,17 @@ void getRGB(float& r0, float& g0, float& b0)  // RGB値の取得
   if (b0 < 0.0) b0 = 0.0;
   if (b0 > 255.0) b0 = 255.0;
 
+}
+
+int classifyColor(){ //
+  int minDistColor=-1; //最短距離の色
+  float minDist=1000; //最短距離 
+  for(int i=0;i<COLORNUM;i++){
+    float dist = sqrt(pow(red - colorValue[i][0], 2) + pow(green - colorValue[i][1], 2) + pow(blue - colorValue[i][2], 2));
+    if(dist < minDist){
+      minDist = dist;
+      minDistColor = i;
+    } 
+  }
+  return minDistColor; //最短距離の色を返す
 }

@@ -15,7 +15,9 @@ float red,green,blue; // RGB値
 int dist; // オブジェクトまでの距離
 float angle;  //向いている方角
 unsigned long timeNow, timePrev; // 時間計測用変数
-int color = 0; // 色判定用変数
+uint8_t color = 0; // 色判定用変数
+enum Color { BLACK, RED, BLUE }; // 色の定義
+
 
 void setup() {
   Serial.begin(9600);
@@ -30,13 +32,20 @@ void setup() {
   //地磁気センサのキャリブレーション
   button.waitForButton();
   calibrationCompass();
+
+  // 初回送信時間の設定
+  timePrev = millis();
 }
 
 void loop() {
   getRGB(red, green, blue); // RGB値の取得
+
   dist = distance(); // オブジェクトまでの距離の取得
   angle = averageHeading(); // 向いている方角の取得
-  timePrev = millis();
+  color=classifyColor(); // 色の分類
+  
+  timeNow = millis();
+  
 
   if(timeNow - timePrev > 500){
     timePrev = timeNow;
