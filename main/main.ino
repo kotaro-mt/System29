@@ -17,7 +17,7 @@ float angle;  //向いている方角
 unsigned long timeNow, timePrev; // 時間計測用変数
 uint8_t color = 0; // 色判定用変数
 uint8_t role = -1; // 役割判定用変数
-enum Color { BLACK, RED, BLUE }; // 色の定義
+enum Color { WHITE,BLACK, RED, BLUE }; // 色の定義
 enum Role {FORWARD, BACKWARD,CLIMB}; // 役割の定義
 
 
