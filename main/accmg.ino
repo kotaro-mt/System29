@@ -114,11 +114,6 @@ float averageHeading()
     // ay = compass.a.y;
     // az = compass.a.z;
 
-    // // 必要なら g 単位に変換
-    // float ax_g = ax / 16384.0;
-    // float ay_g = ay / 16384.0;
-    // float az_g = az / 16384.0;
-
     avg.x += compass.m.x;
     avg.y += compass.m.y;
   }
