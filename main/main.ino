@@ -63,9 +63,22 @@ void loop() {
 
 }
 
-// 探索についての関数(敵陣用ロボ)
+// 探索についての関数
 void serch() {
+  unsigned long timeNow1; // 微調整用の時間
 
+  if (5 < dist && dist < 30) {
+    if (millis() - timeNow1 > 2){
+      motorL = motorR = 0;
+    }
+  } else {
+    motorR = 150;
+    motorL = -150;
+    timeNow1 = millis();
+  }
+  
+  motors.setLeftSpeed(motorL);
+  motors.setRightSpeed(motorR);
 }
 
 void ClassifyRole() { // 役割の分類
