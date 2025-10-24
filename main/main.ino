@@ -35,6 +35,7 @@ void setup() {
   button.waitForButton();
   calibrationCompass();
 
+  //button.waitForButton();
   // 初回送信時間の設定
   timePrev = millis();
 }
@@ -58,37 +59,39 @@ void loop() {
 
     // Serial.println("R:" + String(red) + " G:" + String(green) + " B:" + String(blue));
     // Serial.println("Distance:" + String(dist) + "cm");
-    // Serial.println("Angle:" + String(angle) + "deg");
+    Serial.println("Angle:" + String(angle) + "deg");
 
   }
   
-  // 敵陣用ロボのロール
-  if (role == FORWARD) {
-    switch (mode) {
-      case 0: // 初期状態
-//        if (time - millis() > 3) { // 仮おき
-//          mode = 1; // 探索モードへ移行
+//  // 敵陣用ロボのロール
+//  if (role == FORWARD) {
+//    switch (mode) {
+//      case 0: // 初期状態
+////        if (time - millis() > 3) { // 仮おき
+////          mode = 1; // 探索モードへ移行
+////        }
+//        mode = 1;
+//        break;
+//
+//      case 1: // 探索
+//        serch();
+//        break;
+//
+//      case 2: // 投げる
+//        motorR = 400;
+//        motorL = -400;
+//
+//        if (10 < dist) {
+//          mode = 1;
 //        }
-        mode = 1;
-        break;
+//        break;
+//    }
+//  }
+//
+//  //serch();
+//  color_move();
 
-      case 1: // 探索
-        serch();
-        break;
-
-      case 2: // 投げる
-        motorR = 400;
-        motorL = -400;
-
-        if (10 < dist) {
-          mode = 1;
-        }
-        break;
-    }
-  }
-
-  //serch();
-  //color_move();
+  motorR = motorL = 200;
 
   motors.setLeftSpeed(motorL); // モーターの管理
   motors.setRightSpeed(motorR);
@@ -124,7 +127,6 @@ void color_move() {
     // 押出の処理
   } else { // 白色の時
     motorR = motorL = 150;
-    
   }
 }
 
