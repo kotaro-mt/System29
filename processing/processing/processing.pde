@@ -12,10 +12,9 @@ int col;
 
 void setup(){
   size(1200,800); //幅1200px,高さ800pxのウインドウを生成
-  port1=new Serial(this,"COM7",9600); //Serialクラスのインスタンスを生成
+  port1=new Serial(this,"COM9",9600); //Serialクラスのインスタンスを生成
   port1.clear();
   port1.bufferUntil(0x0d);
-  println("start");
 }
 
 void draw(){
@@ -23,7 +22,7 @@ void draw(){
 }
 
 void serialEvent(Serial p){
-  if(p.available() >= 6){
+  if(p.available() >= 8){
     if(p.read() == 'H')
     {
         println("OK");

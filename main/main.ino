@@ -16,7 +16,9 @@ int dist; // オブジェクトまでの距離
 float angle;  //向いている方角
 unsigned long timeNow, timePrev; // 時間計測用変数
 uint8_t color = 0; // 色判定用変数
+uint8_t role = -1; // 役割判定用変数
 enum Color { BLACK, RED, BLUE }; // 色の定義
+enum Role {FORWARD, BACKWARD,CLIMB}; // 役割の定義
 
 
 void setup() {
@@ -64,4 +66,21 @@ void loop() {
 // 探索についての関数(敵陣用ロボ)
 void serch() {
 
+}
+
+void ClassifyRole() { // 役割の分類
+  if(angle < 180){
+    role = FORWARD;
+  }
+  else if(angle >= 180){
+    role = BACKWARD;
+  }
+  else{
+    role = CLIMB;
+  }
+}
+
+void mountClimb() { // 登攀動作
+
+  
 }

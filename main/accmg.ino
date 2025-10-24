@@ -3,8 +3,8 @@
 #define CRA_REG_M_220HZ 0x1C // CRA_REG_M の値 ： 地磁気センサのアップデートレートを 220 Hz に設定
 
 LSM303 compass;
-int mx, my, mz; // 地磁気センサーの値
-int ax, ay, az; // 加速度センサーの値
+float mx, my, mz; // 地磁気センサーの値
+float ax, ay, az; // 加速度センサーの値
 // 最初の方向を記録する変数
 float initialHeading = 0.0; 
 
