@@ -13,7 +13,7 @@ void sendData(){
     high_m = mode >> 8;
     low_m = mode & 255;
 
-    Serial.write('H');
+    Serial.write("H");
     Serial.write(high_d);
     Serial.write(low_d);
     Serial.write(high_a);
@@ -21,7 +21,5 @@ void sendData(){
     Serial.write(high_m);
     Serial.write(low_m);
     Serial.write(color);
-
-    Serial.println("OK");
 
 }
