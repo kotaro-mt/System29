@@ -3,7 +3,6 @@
 //0を返すと成功、１を返すと相手に山頂のオブジェクトを取られた
 */
 
-float ax, ay, az; // 加速度センサーの値
 float avg_ax=0;
 int speed=0;
 int climb_mode = 0;

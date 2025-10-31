@@ -17,8 +17,10 @@ float angle=0;  //向いている方角
 unsigned long timeNow, timePrev; // 時間計測用変数
 uint8_t color = 0; // 色判定用変数
 uint8_t role = -1; // 役割判定用変数
-enum Color { BLACK, RED, BLUE }; // 色の定義
+enum Color {WHITE, BLACK, RED, BLUE }; // 色の定義
 enum Role {FORWARD, BACKWARD,CLIMB}; // 役割の定義
+float x = 0.0, y = 0.0; // マップに対するXY座標(赤のラインの左側を原点とする)
+float ax, ay, az; // 加速度センサーの値
 
 
 void setup() {
@@ -26,6 +28,8 @@ void setup() {
   Wire.begin();
   setupCompass();
   initWaveSensor();
+
+  role = ClassifyRole(); // ロール分類
 
   //カラーセンサーのキャリブレーション
   button.waitForButton();
@@ -35,11 +39,7 @@ void setup() {
   button.waitForButton();
   calibrationCompass();
 
-  //役割の分類
   button.waitForButton();
-  angle = averageHeading(); // 向いている方角の取得
-  role = ClassifyRole();
-
   // 初回送信時間の設定
   timePrev = millis();
 }
@@ -55,6 +55,7 @@ void loop() {
   }
   
   getRGB(red, green, blue); // RGB値の取得
+  getAcc(ax, ay, az); // 加速度の取得
 
   dist = distance(); // オブジェクトまでの距離の取得
   angle = averageHeading(); // 向いている方角の取得
@@ -65,15 +66,23 @@ void loop() {
 
   if(timeNow - timePrev > 500){
     timePrev = timeNow;
-    sendData();
+    //sendData();
 
   }
 
  switch (mode) {
     case 0: //初期化処理
       motorL = motorR = 0;
+      if(role == FORWARD){
+        mode = 1;
+      }
+      else if(role == CLIMB){
+        mode = 2;
+      }
+      else{
+        mode = 3;
+      }
       break;
-
     case 1:
       // 敵陣ロボットの移動
       break;
