@@ -67,7 +67,7 @@ void loop() {
     // Serial.print("Accel X: "); Serial.print(ax); //加速度センサの値
     // Serial.print(" Y: "); Serial.print(ay);
     // Serial.print(" Z: "); Serial.println(az);
-    // Serial.println(mode);
+    Serial.println(mode);
 
   }
 
@@ -84,6 +84,7 @@ void loop() {
   //place();
   //motorR = motorL = 100;
 
+  forward_robot();
   motors.setLeftSpeed(motorL); // モーターの管理
   motors.setRightSpeed(motorR);
 }
