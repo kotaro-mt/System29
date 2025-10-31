@@ -116,11 +116,6 @@ float averageHeading()
   {
     compass.read();
 
-    // // 加速度の読み込み（仮）
-    // ax = compass.a.x;
-    // ay = compass.a.y;
-    // az = compass.a.z;
-
     avg.x += compass.m.x;
     avg.y += compass.m.y;
   }

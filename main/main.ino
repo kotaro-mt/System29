@@ -29,6 +29,8 @@ void setup() {
   setupCompass();
   initWaveSensor();
 
+  role = ClassifyRole(); // ロール分類
+
   //カラーセンサーのキャリブレーション
   button.waitForButton();
   CalibrationColorSensor();
@@ -37,15 +39,7 @@ void setup() {
   button.waitForButton();
   calibrationCompass();
 
-<<<<<<< HEAD
   button.waitForButton();
-=======
-  //役割の分類
-  button.waitForButton();
-  angle = averageHeading(); // 向いている方角の取得
-  role = ClassifyRole();
-
->>>>>>> 739e2258e45c3c8eecd02c25af9db489028068aa
   // 初回送信時間の設定
   timePrev = millis();
 }
@@ -68,25 +62,16 @@ void loop() {
     // Serial.println("R:" + String(red) + " G:" + String(green) + " B:" + String(blue));
     // Serial.println("Distance:" + String(dist) + "cm");
     // Serial.println("Angle:" + String(angle) + "deg");
-    Serial.println("x_position:" + String(x));
-    Serial.println("y_position:" + String(y));
-    Serial.print("Accel X: "); Serial.print(ax); //加速度センサの値
-    Serial.print(" Y: "); Serial.print(ay);
-    Serial.print(" Z: "); Serial.println(az);
+    // Serial.println("x_position:" + String(x));
+    // Serial.println("y_position:" + String(y));
+    // Serial.print("Accel X: "); Serial.print(ax); //加速度センサの値
+    // Serial.print(" Y: "); Serial.print(ay);
+    // Serial.print(" Z: "); Serial.println(az);
     // Serial.println(mode);
 
   }
 
   // 役割ごとの動作
-<<<<<<< HEAD
-  if (role == FORWARD) {
-    Serial.println("FORWARD");
-  } else if (role == BACKWARD) {
-    Serial.println("BACKWARD");
-  } else if (role == CLIMB) {
-    Serial.println("CLIMB");
-  }
-=======
   // if (role == FORWARD) {
   //   motorR = motorL = 150;
   // } else if (role == BACKWARD) {
@@ -95,7 +80,6 @@ void loop() {
   //   motorL=150;
   //   motorR=-150;
   // }
->>>>>>> a38045e7dc83dfe17711031523cdcc26d1c4efb6
 
   //place();
   //motorR = motorL = 100;
