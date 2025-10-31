@@ -19,6 +19,8 @@ uint8_t color = 0; // 色判定用変数
 uint8_t role = -1; // 役割判定用変数
 enum Color { BLACK, RED, BLUE }; // 色の定義
 enum Role {FORWARD, BACKWARD,CLIMB}; // 役割の定義
+float x = 0.0, y = 0.0; // マップに対するXY座標(赤のラインの左側を原点とする)
+float ax, ay, az; // 加速度センサーの値
 
 
 void setup() {
@@ -37,12 +39,14 @@ void setup() {
   button.waitForButton();
   calibrationCompass();
 
+  button.waitForButton();
   // 初回送信時間の設定
   timePrev = millis();
 }
 
 void loop() {
   getRGB(red, green, blue); // RGB値の取得
+  getAcc(ax, ay, az); // 加速度の取得
 
   dist = distance(); // オブジェクトまでの距離の取得
   angle = averageHeading(); // 向いている方角の取得
@@ -76,6 +80,9 @@ void loop() {
   //   motorL=150;
   //   motorR=-150;
   // }
+
+  //place();
+  //motorR = motorL = 100;
 
   motors.setLeftSpeed(motorL); // モーターの管理
   motors.setRightSpeed(motorR);
