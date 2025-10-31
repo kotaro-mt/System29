@@ -58,24 +58,24 @@ void loop() {
     // Serial.println("R:" + String(red) + " G:" + String(green) + " B:" + String(blue));
     // Serial.println("Distance:" + String(dist) + "cm");
     // Serial.println("Angle:" + String(angle) + "deg");
-    // Serial.println("x_position:" + String(x));
-    // Serial.println("y_position:" + String(y));
-    // Serial.print("Accel X: "); Serial.print(ax); //加速度センサの値
-    // Serial.print(" Y: "); Serial.print(ay);
-    // Serial.print(" Z: "); Serial.println(az);
+    Serial.println("x_position:" + String(x));
+    Serial.println("y_position:" + String(y));
+    Serial.print("Accel X: "); Serial.print(ax); //加速度センサの値
+    Serial.print(" Y: "); Serial.print(ay);
+    Serial.print(" Z: "); Serial.println(az);
     // Serial.println(mode);
 
   }
 
   // 役割ごとの動作
-  if (role == FORWARD) {
-    motorR = motorL = 150;
-  } else if (role == BACKWARD) {
-    motorR = motorL = -150;
-  } else if (role == CLIMB) {
-    motorL=150;
-    motorR=-150;
-  }
+  // if (role == FORWARD) {
+  //   motorR = motorL = 150;
+  // } else if (role == BACKWARD) {
+  //   motorR = motorL = -150;
+  // } else if (role == CLIMB) {
+  //   motorL=150;
+  //   motorR=-150;
+  // }
 
   motors.setLeftSpeed(motorL); // モーターの管理
   motors.setRightSpeed(motorR);
