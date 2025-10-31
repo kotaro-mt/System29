@@ -114,15 +114,15 @@ void color_move() {
   }
 }
 
-void ClassifyRole() { // 役割の分類
+int ClassifyRole() { // 役割の分類
   if(230 < angle && angle < 320){
-    role = FORWARD;
+    return FORWARD;
   }
   else if(angle >= 60 && angle < 130){
-    role = BACKWARD;
+    return BACKWARD;
   }
   else{
-    role = CLIMB;
+    return CLIMB;
   }
 }
 
