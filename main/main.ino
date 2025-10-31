@@ -45,6 +45,15 @@ void setup() {
 }
 
 void loop() {
+
+  // ボタン押下で初期化処理
+  if (digitalRead(ZUMO_BUTTON) == LOW) { // 押された
+    delay(40); 
+    if (digitalRead(ZUMO_BUTTON) == LOW) {
+      reinitializeAll();
+    }
+  }
+  
   getRGB(red, green, blue); // RGB値の取得
 
   dist = distance(); // オブジェクトまでの距離の取得
@@ -58,37 +67,48 @@ void loop() {
     timePrev = timeNow;
     sendData();
 
-    // Serial.println("R:" + String(red) + " G:" + String(green) + " B:" + String(blue));
-    // Serial.println("Distance:" + String(dist) + "cm");
-    // Serial.println("Angle:" + String(angle) + "deg");
-    Serial.println("x_position:" + String(x));
-    Serial.println("y_position:" + String(y));
-    Serial.print("Accel X: "); Serial.print(ax); //加速度センサの値
-    Serial.print(" Y: "); Serial.print(ay);
-    Serial.print(" Z: "); Serial.println(az);
-    // Serial.println(mode);
-
   }
 
-  // 役割ごとの動作
-<<<<<<< HEAD
-  if (role == FORWARD) {
-    Serial.println("FORWARD");
-  } else if (role == BACKWARD) {
-    Serial.println("BACKWARD");
-  } else if (role == CLIMB) {
-    Serial.println("CLIMB");
+ switch (mode) {
+    case 0: //初期化処理
+      motorL = motorR = 0;
+      break;
+
+    case 1:
+      // 敵陣ロボットの移動
+      break;
+
+    case 2:
+      // 山登りモード
+      MountClimb();
+      break;
+
+    case 3:
+      // 探索モード
+      break;
+
+    case 4:
+      // 宝物を見つけて取りに行く
+      break;
+
+    case 5:
+      // 宝物を見つけて投げ飛ばす
+      break;
+
+    case 6:
+      // ゴールに運ぶ
+      break;
+
+    case 7: //緊急対応
+      
+      break;
   }
-=======
-  // if (role == FORWARD) {
-  //   motorR = motorL = 150;
-  // } else if (role == BACKWARD) {
-  //   motorR = motorL = -150;
-  // } else if (role == CLIMB) {
-  //   motorL=150;
-  //   motorR=-150;
-  // }
->>>>>>> a38045e7dc83dfe17711031523cdcc26d1c4efb6
+
+  // モーター出力の反映（各モードが motorL/motorR を設定する想定）
+  motors.setLeftSpeed(motorL);
+  motors.setRightSpeed(motorR);
+
+ 
 
   motors.setLeftSpeed(motorL); // モーターの管理
   motors.setRightSpeed(motorR);
@@ -129,17 +149,49 @@ void color_move() {
 
 int ClassifyRole() { // 役割の分類
   if(230 < angle && angle < 320){
-    return FORWARD;
+    role = FORWARD;
   }
   else if(angle >= 60 && angle < 130){
-    return BACKWARD;
+    role = BACKWARD;
   }
   else{
-    return CLIMB;
+    role = CLIMB;
   }
 }
 
-void mountClimb() { // 登攀動作
+// 再初期化関数：ボタン押下時に呼ぶ（キャリブレーションも行う）
+void reinitializeAll() {
+  // 即時モーター停止
+  motorL = 0;
+  motorR = 0;
+  motors.setLeftSpeed(0);
+  motors.setRightSpeed(0);
 
-  
+  Serial.println("[INFO] reinitializeAll: stopping motors and resetting sensors/state");
+
+  // センサー類の再セットアップ（ハード初期化）
+  initWaveSensor();
+  setupCompass();
+
+  // 状態変数リセット
+  dist = 0;
+  angle = 0;
+  color = 0;
+  role = -1;
+  timePrev = millis();
+
+    // カラーセンサーのキャリブレーション（ユーザー操作を待つ）
+    button.waitForButton();
+    CalibrationColorSensor();
+
+
+    button.waitForButton();
+    calibrationCompass();
+
+    button.waitForButton();
+    angle = averageHeading(); // 向いている方角の取得
+    role = ClassifyRole();
+ 
 }
+
+
