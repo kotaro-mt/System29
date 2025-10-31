@@ -84,6 +84,7 @@ void loop() {
   //place();
   //motorR = motorL = 100;
 
+  forward_robot();
   motors.setLeftSpeed(motorL); // モーターの管理
   motors.setRightSpeed(motorR);
 }
