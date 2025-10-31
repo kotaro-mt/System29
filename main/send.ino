@@ -4,7 +4,7 @@ int high_m, low_m;
 
 void sendData(){
     float angle_s;
-    angle_s=angle*100;
+    angle_s=angle*10;
 
     high_d = dist >> 8; // highにvalの上位8ビットを代入
     low_d = dist & 255; // lowにvalの下位8ビット
@@ -21,5 +21,6 @@ void sendData(){
     Serial.write(high_m);
     Serial.write(low_m);
     Serial.write(color);
+    Serial.write('\n');
 
 }

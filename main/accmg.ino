@@ -4,7 +4,6 @@
 
 LSM303 compass;
 float mx, my, mz; // 地磁気センサーの値
-float ax, ay, az; // 加速度センサーの値
 // 最初の方向を記録する変数
 float initialHeading = 0.0; 
 
@@ -64,6 +63,14 @@ void  calibrationCompass()
   compass.m_min.y = running_min.y;
 }
 
+void getAcc(float& ax, float& ay, float& az)
+{
+  compass.read();
+  ax = compass.a.x;
+  ay = compass.a.y;
+  az = compass.a.z;
+}
+
 void CalibrationCompassManual()
 {
   compass.m_min.x = 0;
@@ -118,15 +125,15 @@ float averageHeading()
   return heading(avg);
 }
 
-float averageHeadingLP()
-{
-  static LSM303::vector<int32_t> avg = {
-    0, 0, 0
-  };
+// float averageHeadingLP()
+// {
+//   static LSM303::vector<int32_t> avg = {
+//     0, 0, 0
+//   };
 
-  compass.read();
-  avg.x = 0.2 * compass.m.x + 0.8 * avg.x;
-  avg.y = 0.2 * compass.m.y + 0.8 * avg.y ;
+//   compass.read();
+//   avg.x = 0.2 * compass.m.x + 0.8 * avg.x;
+//   avg.y = 0.2 * compass.m.y + 0.8 * avg.y ;
 
-  return heading(avg);
-}
+//   return heading(avg);
+// }

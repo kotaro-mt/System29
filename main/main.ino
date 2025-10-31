@@ -12,8 +12,8 @@ ZumoBuzzer buzzer;
 int mode = 0; // 動作モード
 int motorL, motorR; // モーター速度
 float red,green,blue; // RGB値
-int dist; // オブジェクトまでの距離
-float angle;  //向いている方角
+int dist=0; // オブジェクトまでの距離
+float angle=0;  //向いている方角
 unsigned long timeNow, timePrev; // 時間計測用変数
 uint8_t color = 0; // 色判定用変数
 uint8_t role = -1; // 役割判定用変数
@@ -50,7 +50,7 @@ void loop() {
   timeNow = millis();
   
 
-  if(timeNow - timePrev > 1000){
+  if(timeNow - timePrev > 500){
     timePrev = timeNow;
     sendData();
 
@@ -63,33 +63,35 @@ void loop() {
 
   }
   
-  // 敵陣用ロボのロール
-  if (role == FORWARD) {
-    switch (mode) {
-      case 0: // 初期状態
+ // 敵陣用ロボのロール
+ if (role == FORWARD) {
+   switch (mode) {
+     case 0: // 初期状態
 //        if (time - millis() > 3) { // 仮おき
 //          mode = 1; // 探索モードへ移行
 //        }
-        mode = 1;
-        break;
+       mode = 1;
+       break;
 
-      case 1: // 探索
-        serch();
-        break;
+     case 1: // 探索
+       serch();
+       break;
 
-      case 2: // 投げる
-        motorR = 400;
-        motorL = -400;
+     case 2: // 投げる
+       motorR = 400;
+       motorL = -400;
 
-        if (10 < dist) {
-          mode = 1;
-        }
-        break;
-    }
-  }
+       if (10 < dist) {
+         mode = 1;
+       }
+       break;
+   }
+ }
 
-  //serch();
-  //color_move();
+ //serch();
+ color_move();
+
+  motorR = motorL = 200;
 
   motors.setLeftSpeed(motorL); // モーターの管理
   motors.setRightSpeed(motorR);
@@ -125,7 +127,6 @@ void color_move() {
     // 押出の処理
   } else { // 白色の時
     motorR = motorL = 150;
-    
   }
 }
 

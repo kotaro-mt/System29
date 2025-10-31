@@ -81,3 +81,21 @@ int classifyColor(){ //
   }
   return minDistColor; //最短距離の色を返す
 }
+
+void linetrace_P(){
+  static float lightMin =0; // 各自で設定
+  static float lightMax =255; // 各自で設定 （わざとエラーが出るようにしてある）
+  static float speed = 100; // パラメーター
+  static float Kp = 2.0; // パラメーター
+  float lightNow;
+  float speedDiff;
+
+  lightNow = (red + green + blue) / 3.0;
+  if (lightNow > (lightMin + lightMax) / 2.0) // 右回転
+    speedDiff = Kp * speed;
+  else // 左回転
+    speedDiff = -Kp * speed;
+
+  motorL = speed - speedDiff;
+  motorR = speed + speedDiff;
+}
