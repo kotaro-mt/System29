@@ -63,6 +63,8 @@ void loop() {
     // Serial.print("Accel X: "); Serial.print(ax); //加速度センサの値
     // Serial.print(" Y: "); Serial.print(ay);
     // Serial.print(" Z: "); Serial.println(az);
+    // Serial.println(mode);
+
   }
 
   motors.setLeftSpeed(motorL); // モーターの管理
@@ -116,9 +118,5 @@ void ClassifyRole() { // 役割の分類
 
 void mountClimb() { // 登攀動作
 
-  
-}
-
-void kita() {
   
 }
