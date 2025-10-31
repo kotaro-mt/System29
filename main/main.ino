@@ -27,8 +27,6 @@ void setup() {
   setupCompass();
   initWaveSensor();
 
-  role = ClassifyRole(); // ロール分類
-
   //カラーセンサーのキャリブレーション
   button.waitForButton();
   CalibrationColorSensor();
@@ -36,6 +34,11 @@ void setup() {
   //地磁気センサのキャリブレーション
   button.waitForButton();
   calibrationCompass();
+
+  //役割の分類
+  button.waitForButton();
+  angle = averageHeading(); // 向いている方角の取得
+  role = ClassifyRole();
 
   // 初回送信時間の設定
   timePrev = millis();
@@ -69,12 +72,11 @@ void loop() {
 
   // 役割ごとの動作
   if (role == FORWARD) {
-    motorR = motorL = 150;
+    Serial.println("FORWARD");
   } else if (role == BACKWARD) {
-    motorR = motorL = -150;
+    Serial.println("BACKWARD");
   } else if (role == CLIMB) {
-    motorL=150;
-    motorR=-150;
+    Serial.println("CLIMB");
   }
 
   motors.setLeftSpeed(motorL); // モーターの管理
