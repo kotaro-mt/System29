@@ -65,6 +65,7 @@ void forward_robot() {
       if (dist < 5) {
         mode = 5; // 投げるならモード100へ移行 
       }
+      break;
 
      case 5: // お持ち帰り
        motorR = motorL = 0;

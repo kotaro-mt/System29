@@ -67,8 +67,8 @@ void loop() {
     // Serial.print("Accel X: "); Serial.print(ax); //加速度センサの値
     // Serial.print(" Y: "); Serial.print(ay);
     // Serial.print(" Z: "); Serial.println(az);
-    //Serial.println(mode);
-    Serial.println(color);
+    // Serial.println(mode);
+    // Serial.println(color);
 
   }
 
