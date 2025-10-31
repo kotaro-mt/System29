@@ -17,7 +17,7 @@ float angle=0;  //向いている方角
 unsigned long timeNow, timePrev; // 時間計測用変数
 uint8_t color = 0; // 色判定用変数
 uint8_t role = -1; // 役割判定用変数
-enum Color { BLACK, RED, BLUE }; // 色の定義
+enum Color {WHITE, BLACK, RED, BLUE }; // 色の定義
 enum Role {FORWARD, BACKWARD,CLIMB}; // 役割の定義
 float x = 0.0, y = 0.0; // マップに対するXY座標(赤のラインの左側を原点とする)
 float ax, ay, az; // 加速度センサーの値
@@ -57,7 +57,7 @@ void loop() {
 
   if(timeNow - timePrev > 500){
     timePrev = timeNow;
-    sendData();
+    //sendData();
 
     // Serial.println("R:" + String(red) + " G:" + String(green) + " B:" + String(blue));
     // Serial.println("Distance:" + String(dist) + "cm");
@@ -67,7 +67,8 @@ void loop() {
     // Serial.print("Accel X: "); Serial.print(ax); //加速度センサの値
     // Serial.print(" Y: "); Serial.print(ay);
     // Serial.print(" Z: "); Serial.println(az);
-    // Serial.println(mode);
+    //Serial.println(mode);
+    Serial.println(color);
 
   }
 
@@ -83,6 +84,9 @@ void loop() {
 
   //place();
   //motorR = motorL = 100;
+
+  //role = FORWARD;
+  //forward_robot();
 
   motors.setLeftSpeed(motorL); // モーターの管理
   motors.setRightSpeed(motorR);

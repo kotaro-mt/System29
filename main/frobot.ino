@@ -17,7 +17,7 @@ void forward_robot() {
 
      case 1: // 探索：直進
       if (millis() - f_time < 3000){
-        colorR = motorL = 200;
+        motorR = motorL = 200;
       } else {
         mode = 2; // 探索：調査へ移行
       }
@@ -41,7 +41,7 @@ void forward_robot() {
       break;
 
      case 3:
-      if (millies() - f_time > 1000) { // 2秒間後退し回転するように設定
+      if (millis() - f_time > 1000) { // 2秒間後退し回転するように設定
         motorL = motorR = -200;
       } else {
         if (180.0 < f_angle < 360.0) { // 左側の黒からの後退
@@ -67,6 +67,7 @@ void forward_robot() {
       }
 
      case 5: // お持ち帰り
+       motorR = motorL = 0;
        break;
      case 100: // 投げる
        motorR = 400;
@@ -78,10 +79,4 @@ void forward_robot() {
        break;
    }
  }
-
- serch();
- color_move();
-
- motorR = motorL = 200;
-
 }
