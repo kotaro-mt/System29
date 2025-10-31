@@ -19,9 +19,9 @@ void setup(){
   port1.clear();
   port1.bufferUntil('\n');
   
-  //port2=new Serial(this,"COM10",9600); //Serialクラスのインスタンスを生成
-  //port2.clear();
-  //port2.bufferUntil('\n');
+  port2=new Serial(this,"COM12",9600); //Serialクラスのインスタンスを生成
+  port2.clear();
+  port2.bufferUntil('\n');
   
   //port3=new Serial(this,"COM11",9600); //Serialクラスのインスタンスを生成
   //port3.clear();
@@ -30,6 +30,13 @@ void setup(){
 
 void draw(){
   background(0);
+  if(zumo_id==1){
+     text("id-1",100,100); 
+  }
+  else if(zumo_id==2){
+    text("id-2",100,100);
+  }
+  
 }
 
 void serialEvent(Serial p){
@@ -81,20 +88,18 @@ void serialEvent(Serial p){
       dist1 = dist;
       mode1 = mode_val;
       angle1 = angle_val;
-      println(angle1);
     } else if (zumo_id == 2) {
       col2 = col;
       dist2 = dist;
       mode2 = mode_val;
       angle2 = angle_val;
-      println(dist2, angle2, mode2, col2);
     } else if (zumo_id == 3) {
       col3 = col;
       dist3 = dist;
       mode3 = mode_val;
       angle3 = angle_val;
-      println(dist3, angle3, mode3, col3);
     }
   }
+  println(angle1,angle2);
 
 }
