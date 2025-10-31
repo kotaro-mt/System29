@@ -39,7 +39,7 @@ void  calibrationCompass()
 
   for (index = 0; index < CALIBRATION_SAMPLES; index ++)
   {
-    // Take a reading of the magnetic vector and store it in compass.m
+    // 地磁気センサ（LSM303）から磁気ベクトルを読み取る
     compass.read();
 
     running_min.x = min(running_min.x, compass.m.x);
@@ -115,6 +115,12 @@ float averageHeading()
   for (int i = 0; i < 10; i ++)
   {
     compass.read();
+
+    // // 加速度の読み込み（仮）
+    // ax = compass.a.x;
+    // ay = compass.a.y;
+    // az = compass.a.z;
+
     avg.x += compass.m.x;
     avg.y += compass.m.y;
   }

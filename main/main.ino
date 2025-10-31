@@ -27,6 +27,8 @@ void setup() {
   setupCompass();
   initWaveSensor();
 
+  role = ClassifyRole(); // ロール分類
+
   //カラーセンサーのキャリブレーション
   button.waitForButton();
   CalibrationColorSensor();
@@ -45,7 +47,6 @@ void loop() {
   dist = distance(); // オブジェクトまでの距離の取得
   angle = averageHeading(); // 向いている方角の取得
   color=classifyColor(); // 色の分類
-  ClassifyRole(); // ロール分類
   
   timeNow = millis();
   
@@ -54,44 +55,27 @@ void loop() {
     timePrev = timeNow;
     sendData();
 
-    
-
     // Serial.println("R:" + String(red) + " G:" + String(green) + " B:" + String(blue));
     // Serial.println("Distance:" + String(dist) + "cm");
     // Serial.println("Angle:" + String(angle) + "deg");
-    // Serial.println("Color:" + String(color));
+    // Serial.println("x_position:" + String(x));
+    // Serial.println("y_position:" + String(y));
+    // Serial.print("Accel X: "); Serial.print(ax); //加速度センサの値
+    // Serial.print(" Y: "); Serial.print(ay);
+    // Serial.print(" Z: "); Serial.println(az);
+    // Serial.println(mode);
 
   }
-  
- // 敵陣用ロボのロール
- if (role == FORWARD) {
-   switch (mode) {
-     case 0: // 初期状態
-//        if (time - millis() > 3) { // 仮おき
-//          mode = 1; // 探索モードへ移行
-//        }
-       mode = 1;
-       break;
 
-     case 1: // 探索
-       serch();
-       break;
-
-     case 2: // 投げる
-       motorR = 400;
-       motorL = -400;
-
-       if (10 < dist) {
-         mode = 1;
-       }
-       break;
-   }
- }
-
- //serch();
- color_move();
-
-  motorR = motorL = 200;
+  // 役割ごとの動作
+  if (role == FORWARD) {
+    motorR = motorL = 150;
+  } else if (role == BACKWARD) {
+    motorR = motorL = -150;
+  } else if (role == CLIMB) {
+    motorL=150;
+    motorR=-150;
+  }
 
   motors.setLeftSpeed(motorL); // モーターの管理
   motors.setRightSpeed(motorR);
@@ -131,10 +115,10 @@ void color_move() {
 }
 
 void ClassifyRole() { // 役割の分類
-  if(angle < 180){
+  if(230 < angle && angle < 320){
     role = FORWARD;
   }
-  else if(angle >= 180){
+  else if(angle >= 60 && angle < 130){
     role = BACKWARD;
   }
   else{
@@ -144,9 +128,5 @@ void ClassifyRole() { // 役割の分類
 
 void mountClimb() { // 登攀動作
 
-  
-}
-
-void kita() {
   
 }
