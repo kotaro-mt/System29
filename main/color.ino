@@ -2,22 +2,20 @@
 
 #define COLORNUM 4 // 判定する色の数
 // 松永
-/*
 int colorValue[COLORNUM][3] = {
   {255, 255, 255},   // 白色の値
   {0,0,0}, //黒色の値
   {120, 30, 31},   // 赤色の値
   {20, 40, 80}    // 青色の値
 };
-*/
 
 // 喜多
-int colorValue[COLORNUM][3] = {
-  {255, 255, 255},   // 白色の値
-  {0,0,0}, //黒色の値
-  {122, 22, 26},   // 赤色の値
-  {10, 30, 70}    // 青色の値
-};
+// int colorValue[COLORNUM][3] = {
+//   {255, 255, 255},   // 白色の値
+//   {0,0,0}, //黒色の値
+//   {122, 22, 26},   // 赤色の値
+//   {10, 30, 70}    // 青色の値
+// };
 
 
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_60X);
@@ -32,7 +30,7 @@ void  CalibrationColorSensor() // カラーセンサーのキャリブレーシ�
 
   tcs.begin(); // カラーセンサーのsetup
   
-  motors.setSpeeds(100, 100); 
+  motors.setSpeeds(60, 60); 
 
   r_min = 30000;
   g_min = 30000;
@@ -95,7 +93,7 @@ int classifyColor(){ //
 
 void linetrace_P(){
   static float lightMin =0; // 各自で設定
-  static float lightMax =255; // 各自で設定 （わざとエラーが出るようにしてある）
+  static float lightMax =255; // 各自で設定
   static float speed = 100; // パラメーター
   static float Kp = 2.0; // パラメーター
   float lightNow;

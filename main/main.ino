@@ -1,14 +1,18 @@
 #include <ZumoMotors.h> // モーターライブラリのヘッダーファイル
 #include <Pushbutton.h> // プッシュボタンプッシュボタンライブラリのヘッダーファイル
-#include <Wire.h> // 通信のヘッダーファイル
-#include <LSM303.h> // LSM303ライブラリのヘッダーファイル
+#include <Wire.h>       // 通信のヘッダーファイル
+#include <LSM303.h>     // LSM303ライブラリのヘッダーファイル
 #include <ZumoBuzzer.h> // ブザーライブラリのヘッダーファイル
 
+<<<<<<< HEAD
 // インスタンス定義
+=======
+>>>>>>> 30f13d59fad76ed28d0fc6be0f1edc9c4a99ebf3
 ZumoMotors motors;
 Pushbutton button(ZUMO_BUTTON);
 ZumoBuzzer buzzer;
 
+<<<<<<< HEAD
 // 変数定義
 int mode = 0; // 動作モード
 int motorL, motorR; // モーター速度
@@ -37,58 +41,149 @@ bool c_active = false;
 
 // 初期設定(キャリブレーション3回)
 void setup() {
+=======
+int mode = 0;                    // 動作モード
+int climb_mode = 0;
+int motorL, motorR;              // モーター速度
+float red, green, blue;          // RGB値
+int dist = 0;                    // オブジェクトまでの距離
+float angle = 0;                 // 向いている方角
+float goalAngle = 0;             // ゴール方角
+unsigned long timeNow, timePrev; // 時間計測用変数
+uint8_t color = 0;               // 色判定用変数
+uint8_t role = -1;               // 役割判定用変数
+enum Color
+{
+  WHITE,
+  BLACK,
+  RED,
+  BLUE
+}; // 色の定義
+enum Role
+{
+  FORWARD,
+  BACKWARD,
+  CLIMB
+}; // 役割の定義
+float x = 0.0, y = 0.0; // マップに対するXY座標(赤のラインの左側を原点とする)
+float ax, ay, az;       // 加速度センサーの値
+
+void setup()
+{
+>>>>>>> 30f13d59fad76ed28d0fc6be0f1edc9c4a99ebf3
   Serial.begin(9600);
   Wire.begin();
   setupCompass();
   initWaveSensor();
 
+<<<<<<< HEAD
   role = ClassifyRole(); // ロール分類
   mode = 0;
 
   //カラーセンサーのキャリブレーション
+=======
+  // カラーセンサーのキャリブレーション
+>>>>>>> 30f13d59fad76ed28d0fc6be0f1edc9c4a99ebf3
   button.waitForButton();
   CalibrationColorSensor();
 
-  //地磁気センサのキャリブレーション
+  // 地磁気センサのキャリブレーション
   button.waitForButton();
   calibrationCompass();
 
   button.waitForButton();
+<<<<<<< HEAD
   angle = averageHeading(); // 向いている方角の取得
   role = ClassifyRole();
+=======
+  goalAngle = angle = averageHeading(); // 向いている方角の取得(初期方角)
+  role = ClassifyRole();                // ロール分類
+
+  // 目標方角の設定
+  if (role == FORWARD)
+  {
+    goalAngle += 90.0f;
+    if (goalAngle >= 360.0f)
+      goalAngle -= 360.0f;
+  }
+  else if (role == BACKWARD)
+  {
+    goalAngle -= 90.0f;
+    if (goalAngle < 0.0f)
+      goalAngle += 360.0f;
+  }
+>>>>>>> 30f13d59fad76ed28d0fc6be0f1edc9c4a99ebf3
   // 初回送信時間の設定
   timePrev = millis();
+
+  // ボタン入力をプルアップで有効化（Zumo ボタンが LOW 押下の想定）
+  pinMode(ZUMO_BUTTON, INPUT_PULLUP);
 }
 
-void loop() {
+void loop()
+{
 
   // ボタン押下で初期化処理
-  if (digitalRead(ZUMO_BUTTON) == LOW) { // 押された
-    delay(40); 
-    if (digitalRead(ZUMO_BUTTON) == LOW) {
+  if (digitalRead(ZUMO_BUTTON) == LOW)
+  { // 押された
+    delay(40);
+    if (digitalRead(ZUMO_BUTTON) == LOW)
+    {
       reinitializeAll();
     }
   }
-  
+
   getRGB(red, green, blue); // RGB値の取得
-  getAcc(ax, ay, az); // 加速度の取得
+  getAcc(ax, ay, az);       // 加速度の取得
 
-  dist = distance(); // オブジェクトまでの距離の取得
+  dist = distance();        // オブジェクトまでの距離の取得
   angle = averageHeading(); // 向いている方角の取得
-  color=classifyColor(); // 色の分類
-  
+  color = classifyColor();  // 色の分類
+
   timeNow = millis();
-  
 
-  if(timeNow - timePrev > 500){
+  if (timeNow - timePrev > 500)
+  {
     timePrev = timeNow;
-    //sendData();
-
+    // sendData();
   }
 
- switch (mode) {
-    case 0: //初期化処理
+  switch (mode)
+  {
+  case 0: // 初期化処理
+    climb_mode=0;
+    motorL = motorR = 0;
+    Serial.println(role);
+    if (role == FORWARD)
+    {
+      mode = 1;
+    }
+    else if (role == CLIMB)
+    {
+      mode = 2;
+    }
+    else
+    {
+      mode = 3;
+    }
+    break;
+  case 1:
+    // 敵陣ロボットの移動
+    break;
+
+  case 2:
+    // 山登りモード
+    if (MountClimb())
+      mode = 3;
+    break;
+
+  case 3:
+    // 探索モード
+    if (search())
+    {
+      mode = 4;
       motorL = motorR = 0;
+<<<<<<< HEAD
       // roleを文字列で表示
       Serial.print("[ROLE] 現在の役割：");
       if(role == FORWARD){
@@ -107,32 +202,41 @@ void loop() {
     case 1:
       // 敵陣ロボットの移動
       break;
+=======
+    }
+    break;
+>>>>>>> 30f13d59fad76ed28d0fc6be0f1edc9c4a99ebf3
 
-    case 2:
-      // 山登りモード
-      MountClimb();
-      break;
+  case 4:
+    // 宝物を見つけて取りに行く
+    if (catchObject() == 1)
+    {
+      mode = 6;
+    }
+    else if (catchObject() == 2)
+    {
+      mode = 3;
+    }
+    break;
 
+<<<<<<< HEAD
     case 3:
       // 探索モード
       Back();
       break;
+=======
+  case 5:
+    // 宝物を見つけて投げ飛ばす
+    break;
+>>>>>>> 30f13d59fad76ed28d0fc6be0f1edc9c4a99ebf3
 
-    case 4:
-      // 宝物を見つけて取りに行く
-      break;
+  case 6:
+    // ゴールに運ぶ
+    break;
 
-    case 5:
-      // 宝物を見つけて投げ飛ばす
-      break;
+  case 7: // 緊急対応
 
-    case 6:
-      // ゴールに運ぶ
-      break;
-
-    case 7: //緊急対応
-      
-      break;
+    break;
   }
 
   // モーター出力の反映（各モードが motorL/motorR を設定する想定）
@@ -145,25 +249,102 @@ void loop() {
 //===================
 
 // 探索についての関数
-void serch() {
-  unsigned long timeNow1; // 微調整用の時間
+int search()
+{
+  static int searchMode = 0;
+  static unsigned long timePrev1 = 0;
+  static unsigned long timeNow1 = 0;
 
-  if (5 < dist && dist < 30) {
-    if (millis() - timeNow1 > 2){ // 正面にオブジェクトが来るようにするための時間調整
-      if (role == FORWARD){ // 敵陣用ロボ
-        motorL = motorR = 150; // 接近
-        if (dist < 5) { // 距離が5センチ未満になったらキャッチとして判定
-          mode = 2;
-        }
+  timeNow1 = millis();
+  if (timePrev1 == 0)
+    timePrev1 = timeNow1;
+
+  switch (searchMode)
+  {
+  case 0: // 直進
+    if (color == WHITE)
+    {
+      motorL = motorR = 200;
+      if (timeNow1 - timePrev1 > 2000)
+      {
+        timePrev1 = timeNow1;
+        searchMode = 2;
       }
     }
-  } else {
+    else
+    {
+      timePrev1 = timeNow1;
+      searchMode = 1;
+    }
+    break;
+  case 1: // 後退
+    motorL = motorR = -200;
+    if (timeNow1 - timePrev1 > 2000)
+    {
+      timePrev1 = timeNow1;
+      searchMode = 0;
+    }
+    break;
+  case 2: // 回転
     motorR = 150;
     motorL = -150;
-    timeNow1 = millis();
+    if (dist < 30)
+    {
+      searchMode = 0;
+      return 1;
+    }
+    if (timeNow1 - timePrev1 > 2000)
+    {
+      timePrev1 = timeNow1;
+      searchMode = 0;
+    }
+    break;
   }
+  return 0;
 }
 
+int catchObject()
+{ // 宝物を見つけて取りに行く　0:継続 1:完了 2:失敗（敵機感知）
+  static int catchMode = 0;
+  static unsigned long timePrev2 = 0;
+  unsigned long timeNow2 = millis();
+  static float avgDist = 0.0f;
+
+  if (timePrev2 == 0) timePrev2 = timeNow2;
+
+  switch (catchMode)
+  {
+    case 0: // 待機：距離を平滑化して静止かどうか判定
+      motorL = motorR = 0;
+      // LPF 更新（前回値を保持しつつ更新）
+      avgDist = 0.8f * avgDist + 0.2f * (float)dist;
+      if (timeNow2 - timePrev2 > 1000) {
+        timePrev2 = timeNow2;
+        // 敵機でない（ほぼ静止）なら接近モードへ、そうでなければ敵判定
+        if (fabs(avgDist - (float)dist) < 3.0f) {
+          catchMode = 1;
+        } else {
+          return 2; // 敵機判定（失敗）
+        }
+      }
+      break;
+
+    case 1: // 接近して保持
+      motorL = motorR = 150;
+      if (dist < 5) {
+        catchMode = 2;
+      }
+      break;
+
+    case 2: // 完了
+      motorL = motorR = 0;
+      catchMode = 0;
+      return 1;
+  }
+  return 0;
+}
+
+<<<<<<< HEAD
 // 🔹 色に応じた動作処理
 void color_move(uint8_t color, unsigned long &refTime) {
   if (!c_active) {
@@ -237,9 +418,34 @@ bool Check(int currentDist, unsigned long &checkStartTime, int &prevDist, int &c
     firstCall = true;
     // 距離変化がほとんどなければ「静止」とみなす
     return (changeCount < changeThreshold);
+=======
+int goal()
+{ // ゴールに運ぶ
+  static int goalMode = 0;
+  switch (goalMode)
+  {
+  case 0: // 回転
+    motorL = 150;
+    motorR = -150;
+    if (relativeHeading(angle, goalAngle) < 5.0 && relativeHeading(angle, goalAngle) > -5.0) // 目標方角に到達
+      goalMode = 1;
+
+    break;
+  case 1: // 前進
+    motorL = motorR = 200;
+    if (color == BLUE || color == RED)
+    { // ゴール到達
+      motorL = motorR = 0;
+      goalMode = 0;
+      return 1;
+    }
+    break;
+>>>>>>> 30f13d59fad76ed28d0fc6be0f1edc9c4a99ebf3
   }
+  return 0;
 }
 
+<<<<<<< HEAD
 
 // 役割の分類
 int ClassifyRole() { 
@@ -251,13 +457,29 @@ int ClassifyRole() {
   }
   else {
     role = CLIMB;
+=======
+int ClassifyRole()
+{ // 役割の分類
+  if (230 < angle && angle < 320)
+  {
+    return FORWARD;
+  }
+  else if (angle >= 60 && angle < 130)
+  {
+    return BACKWARD;
+  }
+  else
+  {
+    return CLIMB;
+>>>>>>> 30f13d59fad76ed28d0fc6be0f1edc9c4a99ebf3
   }
   return role;
 }
 
 
 // 再初期化関数：ボタン押下時に呼ぶ（キャリブレーションも行う）
-void reinitializeAll() {
+void reinitializeAll()
+{
   // 即時モーター停止
   motorL = 0;
   motorR = 0;
@@ -275,18 +497,19 @@ void reinitializeAll() {
   angle = 0;
   color = 0;
   role = -1;
+  mode=0;
   timePrev = millis();
 
-    // カラーセンサーのキャリブレーション（ユーザー操作を待つ）
-    button.waitForButton();
-    CalibrationColorSensor();
+  // カラーセンサーのキャリブレーション
+  button.waitForButton();
+  CalibrationColorSensor();
 
+  // 地磁気センサのキャリブレーション
+  button.waitForButton();
+  calibrationCompass();
 
-    button.waitForButton();
-    calibrationCompass();
-
-    button.waitForButton();
-    angle = averageHeading(); // 向いている方角の取得
-    role = ClassifyRole();
- 
+  // 最初に向いている方向を取得
+  button.waitForButton();
+  angle = averageHeading(); // 向いている方角の取得
+  role = ClassifyRole();
 }
