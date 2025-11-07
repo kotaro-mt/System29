@@ -85,6 +85,7 @@ void loop() {
       break;
     case 1:
       // 敵陣ロボットの移動
+      //forward_robot();
       break;
 
     case 2:
@@ -116,44 +117,6 @@ void loop() {
   // モーター出力の反映（各モードが motorL/motorR を設定する想定）
   motors.setLeftSpeed(motorL);
   motors.setRightSpeed(motorR);
-
- 
-
-  motors.setLeftSpeed(motorL); // モーターの管理
-  motors.setRightSpeed(motorR);
-}
-
-// 探索についての関数
-void serch() {
-  unsigned long timeNow1; // 微調整用の時間
-
-  if (5 < dist && dist < 30) {
-    if (millis() - timeNow1 > 2){ // 正面にオブジェクトが来るようにするための時間調整
-      if (role == FORWARD){ // 敵陣用ロボ
-        motorL = motorR = 150; // 接近
-        if (dist < 5) { // 距離が5センチ未満になったらキャッチとして判定
-          mode = 2;
-        }
-      }
-    }
-  } else {
-    motorR = 150;
-    motorL = -150;
-    timeNow1 = millis();
-  }
-}
-
-// 色の判定による挙動の関数
-void color_move() {
-  if (color == BLACK) {
-    motorR = motorL = 0;
-  } else if (color == BLUE) {
-    // 押出の処理
-  } else if (color == RED) {
-    // 押出の処理
-  } else { // 白色の時
-    motorR = motorL = 150;
-  }
 }
 
 int ClassifyRole() { // 役割の分類
