@@ -14,7 +14,7 @@ getAcc(ax, ay, az); // 加速度センサーの値を取得
 
 avg_ax=0.9*avg_ax+0.1*ax; // 低域通過フィルタ
 
-Serial.println(climb_mode);
+//Serial.println(climb_mode);
 
 switch(climb_mode){
   case 0: //山登り開始

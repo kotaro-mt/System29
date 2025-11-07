@@ -1,3 +1,6 @@
+// motorR = 200;
+//motorL = 217
+
 unsigned long f_time;
 float f_angle;
 int erea;

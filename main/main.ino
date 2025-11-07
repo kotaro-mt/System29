@@ -21,7 +21,16 @@ enum Color {WHITE, BLACK, RED, BLUE }; // 色の定義
 enum Role {FORWARD, BACKWARD,CLIMB}; // 役割の定義
 float x = 0.0, y = 0.0; // マップに対するXY座標(赤のラインの左側を原点とする)
 float ax, ay, az; // 加速度センサーの値
+float vx = 0.0, vy = 0.0; // 速度（m/s）
 
+//速度の最小値最大値を求めるよ
+float xMv = 0;
+float xmv = 100;
+float yMv = 0;
+float ymv = 100;
+
+// かそくどので使います
+float ax_offset = 0, ay_offset = 0, az_offset = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -39,6 +48,9 @@ void setup() {
   button.waitForButton();
   calibrationCompass();
 
+  button.waitForButton();
+  offset();
+  
   button.waitForButton();
   // 初回送信時間の設定
   timePrev = millis();
@@ -67,7 +79,17 @@ void loop() {
   if(timeNow - timePrev > 500){
     timePrev = timeNow;
     //sendData();
-
+    //Serial.print(x);
+    //Serial.print(',');
+    //Serial.println(y);
+    //Serial.print(ax);
+    //Serial.print(',');
+    //Serial.print(ay);
+    //Serial.print(',');
+    //Serial.println(az);
+    Serial.print(vx);
+    Serial.print(',');
+    Serial.println(vy);
   }
 
  switch (mode) {
@@ -84,8 +106,8 @@ void loop() {
       }
       break;
     case 1:
-      // 敵陣ロボットの移動
-      //forward_robot();
+      // 敵陣ロボットの移動      
+      forward_robot();
       break;
 
     case 2:
@@ -115,6 +137,10 @@ void loop() {
   }
 
   // モーター出力の反映（各モードが motorL/motorR を設定する想定）
+  //motorR = 200;
+  //motorL = 217;
+  motorR = motorL = 0;
+  place();
   motors.setLeftSpeed(motorL);
   motors.setRightSpeed(motorR);
 }

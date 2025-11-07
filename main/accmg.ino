@@ -32,7 +32,7 @@ void  calibrationCompass()
     -32767, -32767, -32767
   };
 
-  motorL = 200;
+  motorL = 217;
   motorR = -200;
   motors.setLeftSpeed(motorL);
   motors.setRightSpeed(motorR);
@@ -138,3 +138,18 @@ float averageHeading()
 
 //   return heading(avg);
 // }
+
+float offset() {
+  const int samples = 100;
+  long sum_x = 0, sum_y = 0, sum_z = 0;
+  for (int i = 0; i < samples; i++) {
+    compass.read();
+    sum_x += compass.a.x;
+    sum_y += compass.a.y;
+    sum_z += compass.a.z;
+    delay(10);
+  }
+  ax_offset = sum_x / (float)samples;
+  ay_offset = sum_y / (float)samples;
+  az_offset = (sum_z / (float)samples) - 16384.0;
+}
