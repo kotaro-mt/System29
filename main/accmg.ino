@@ -138,3 +138,11 @@ float averageHeading()
 
 //   return heading(avg);
 // }
+
+float mxScaled() {
+  compass.read();
+
+  float x_scaled =  2.0 * (float)(compass.m.x - compass.m_min.x) / ( compass.m_max.x - compass.m_min.x) - 1.0;
+  
+  return x_scaled;
+}
