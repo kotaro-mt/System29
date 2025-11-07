@@ -165,5 +165,3 @@ void reinitializeAll() {
     role = ClassifyRole();
  
 }
-
-
