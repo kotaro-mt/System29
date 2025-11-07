@@ -7,6 +7,8 @@ float avg_ax=0;
 float avg_mx=0;
 float max_ax=0;
 int speed=0;
+unsigned long timePrev_c=0;
+unsigned long timeNow_c=0;
 
 int MountClimb(){ 
 
@@ -16,9 +18,7 @@ getAcc(ax, ay, az); // 加速度センサーの値を取得
 
 avg_ax=0.9*avg_ax+0.1*ax; // 低域通過フィルタ
 avg_mx=0.9*avg_mx+0.1*mxScaled(); // 低域通過フィルタ
-
-Serial.print("山登りモード：");
-Serial.println(climb_mode);
+timeNow_c=millis();
 
 switch(climb_mode){
   case 0: //山登り開始
@@ -28,32 +28,47 @@ switch(climb_mode){
     }
     break;
   case 1: //山頂到達判定
-    speed = 200;
-    diff = -0.02*my+50; // P-制御 少し斜めを向くようにする（+10は調整用）
-    if (avg_mx>0.5){ //山の反対側に行ったら
-        // climb_mode = 2;
-        // diff=0;
+  {
+    // 目標 ay（センサ単位）に近づける制御
+    const float target_ay = 3000.0f;   // 目標値（実機に合わせて変更）
+    const float Kp_ay = 0.02f;      // 比例ゲイン（チューニング）
+
+    static float avg_ay = 0.0f;     // ay のローパス用蓄積
+    static float prevDiff = 0.0f;   // diff 平滑化用
+
+    // ay を平滑化してノイズを抑える
+    avg_ay = 0.9f * avg_ay + 0.1f * ay;
+
+    // 誤差に比例して舵を決定
+    float error = target_ay - avg_ay;
+    float steer = Kp_ay * error;
+    // diff をローパスして滑らかに
+    diff = 0.8f * prevDiff + 0.2f * steer;
+    prevDiff = diff;
+
+    // 例: 磁気方向が所定に向いたら次のモードへ（条件は実機で調整）
+    if (angle <145) {
+      Serial.println(avg_mx);
+      climb_mode = 2;
+      diff=0;
+      timePrev_c=timeNow_c;
     }
-    break;
+  }
+  break;
   case 2: //山頂方向に回転
-    motorL = 150;
-    motorR = -150;
-    if(max_ax <= avg_ax){ //山頂方向に向いたら
-      max_ax = avg_ax;
-      count = 0;
-    }else{
-      count++;
-      if(count > 3){ //安定するまで少し待つ
-        climb_mode = 3;
-        count = 0;
+    speed=-100;
+    diff=-0.02*ay;
+    if(timeNow_c-timePrev_c>2000){
+      if(avg_ax<500){
+        climb_mode =3;
       }
     }
     break;
   case 3: //物体を取りに行く
-    speed = 200;
-    diff = -0.02*ay;
+    speed = 250;
+    diff = -0.02*ay;;
     if(avg_ax<500){
-
+      climb_mode=4;
     }
     break;
   case 4: //山降り開始
@@ -65,7 +80,7 @@ switch(climb_mode){
   case 5: //山降り完了
     speed = 200;
     diff = -0.02*ay;
-    if(avg_ax> -500){ //平地に戻ったら
+    if(avg_ax> 500){ //平地に戻ったら
       return 1; //成功
     }
     break;

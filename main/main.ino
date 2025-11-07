@@ -136,25 +136,8 @@ void loop()
     {
       mode = 4;
       motorL = motorR = 0;
-<<<<<<< HEAD
     }
     break;
-=======
-      if(role == FORWARD){
-        mode = 1;
-      }
-      else if(role == CLIMB){
-        mode = 2;
-      }
-      else{
-        mode = 3;
-      }
-      break;
-    case 1:
-      // 敵陣ロボットの移動
-      //forward_robot();
-      break;
->>>>>>> 6ba3babded98d4ce3d35f5eed0a0593c12038c02
 
   case 4:
     // 宝物を見つけて取りに行く
@@ -184,7 +167,6 @@ void loop()
   // モーター出力の反映（各モードが motorL/motorR を設定する想定）
   motors.setLeftSpeed(motorL);
   motors.setRightSpeed(motorR);
-<<<<<<< HEAD
 }
 
 // 探索についての関数
@@ -281,8 +263,6 @@ int catchObject()
       return 1;
   }
   return 0;
-=======
->>>>>>> 6ba3babded98d4ce3d35f5eed0a0593c12038c02
 }
 
 int goal()
