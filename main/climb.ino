@@ -17,13 +17,10 @@ int count=0; //カウント用
 getAcc(ax, ay, az); // 加速度センサーの値を取得
 
 avg_ax=0.9*avg_ax+0.1*ax; // 低域通過フィルタ
-<<<<<<< HEAD
 
 //Serial.println(climb_mode);
-=======
 avg_mx=0.9*avg_mx+0.1*mxScaled(); // 低域通過フィルタ
 timeNow_c=millis();
->>>>>>> 30f13d59fad76ed28d0fc6be0f1edc9c4a99ebf3
 
 switch(climb_mode){
   case 0: //山登り開始

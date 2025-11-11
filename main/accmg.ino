@@ -139,7 +139,7 @@ float averageHeading()
 //   return heading(avg);
 // }
 
-<<<<<<< HEAD
+
 float offset() {
   const int samples = 100;
   long sum_x = 0, sum_y = 0, sum_z = 0;
@@ -153,12 +153,12 @@ float offset() {
   ax_offset = sum_x / (float)samples;
   ay_offset = sum_y / (float)samples;
   az_offset = (sum_z / (float)samples) - 16384.0;
-=======
+}
+
 float mxScaled() {
   compass.read();
 
   float x_scaled =  2.0 * (float)(compass.m.x - compass.m_min.x) / ( compass.m_max.x - compass.m_min.x) - 1.0;
   
   return x_scaled;
->>>>>>> 30f13d59fad76ed28d0fc6be0f1edc9c4a99ebf3
 }
