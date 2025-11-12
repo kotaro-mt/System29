@@ -68,8 +68,8 @@ void setup()
   button.waitForButton();
   calibrationCompass();
 
-  button.waitForButton();
-  offset();
+  // button.waitForButton();
+  // offset();
   
   button.waitForButton();
   goalAngle = angle = averageHeading(); // 向いている方角の取得(初期方角)
@@ -129,9 +129,9 @@ void loop()
     //Serial.print(ay);
     //Serial.print(',');
     //Serial.println(az);
-    Serial.print(vx);
-    Serial.print(',');
-    Serial.println(vy);
+    // Serial.print(vx);
+    // Serial.print(',');
+    // Serial.println(vy);
   }
 
   switch (mode)
@@ -155,6 +155,7 @@ void loop()
     break;
   case 1:
     // 敵陣ロボットの移動
+    forward_robot();
     break;
 
   case 2:
@@ -211,10 +212,6 @@ void loop()
   }
 
   // モーター出力の反映（各モードが motorL/motorR を設定する想定）
-  //motorR = 200;
-  //motorL = 217;
-  motorR = motorL = 0;
-  place();
   motors.setLeftSpeed(motorL);
   motors.setRightSpeed(motorR);
 }
