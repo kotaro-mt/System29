@@ -19,7 +19,6 @@ void forward_robot() {
     
       case 0:
         Serial.println(f_mode);
-        Serial.println(f_angle);
         if (0 < angle && angle < 20) { //敵陣方向に回転
           f_mode = 1;
           f_time = millis();
@@ -31,12 +30,12 @@ void forward_robot() {
 
       case 1: // 敵陣まで直進
         Serial.println(f_mode);
-        motorR = 200;
-        motorL = 217;
-        if(4000 < millis() - f_time && millis() - f_time < 4500 ) { // 5秒経過したら探索へ移行
+        motorR = 300;
+        motorL = 300;
+        if(4000 < millis() - f_time && millis() - f_time < 4500 ) { // 5.5秒経過したら探索へ移行
           motorR = 200;
           motorL = -217;
-        } else if (5000 <= millis() - f_time) {
+        } else if (5500 <= millis() - f_time) {
           f_mode = 2; // 探索へ移行
           f_time = millis();
         }
@@ -44,7 +43,7 @@ void forward_robot() {
 
       case 2: // 探索-回転
         Serial.println(f_mode);
-        if (millis() - f_time >= 1000) { // 1秒経過したら再直進
+        if (millis() - f_time >= 1500) { // 1.5秒経過したら再直進
           f_mode = 3; // 探索-直進
           b_time = millis();
         } else {
@@ -52,7 +51,7 @@ void forward_robot() {
           motorR = 200;
         }
         // 途中で物体を発見した場合
-        if (dist > 0) {
+        if (0 < dist && dist < 30) {
           if (!targetAngleRecorded) {     // まだ角度を記録していなければ
             f_angle = angle;             // 現在角度を記録
             targetAngleRecorded = true;
@@ -102,7 +101,7 @@ void forward_robot() {
       
       case 6: //運搬-回転
         Serial.println(f_mode);
-        if (80 < angle < 100) { // 黒の壁を向いたら直進
+        if (80 < angle && angle < 100) { // 黒の壁を向いたら直進
           motorR = 200; motorL = 217;
           if (color == BLACK) { // 黒を認識したら
             f_time = millis();
@@ -114,16 +113,17 @@ void forward_robot() {
         }
         break;
 
-      case 99:
+      case 99: // 色による判定
         Serial.println(f_mode);
-        color_move(color, f_time);
+        //color_move(color, f_time);
+        motorR = motorL = 0;
         break;
 
       case 100: // 投げるor押し出し
         Serial.println(f_mode);
-        if(millis() - f_time < 1500) { // 1.5秒間直進
-          motorR = 200; motorL = 217;
-        } else if (1500 <= millis() - f_time < 3000){
+        if(millis() - f_time < 1000) { // 1.5秒間直進
+          motorR = 400; motorL = -400;
+        } else if (1000 <= millis() - f_time && millis() - f_time < 2000){
           motorR = -200; motorL = -217; // 1.5秒間後退
           f_angle = angle;
         } else {
@@ -131,7 +131,7 @@ void forward_robot() {
             f_mode = 3; // 探索-直進へ移行
           } else { // 反方向まで回転
             motorR = -200;
-            motorL = -217;
+            motorL = 217;
           }
         }
         break;

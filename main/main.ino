@@ -37,7 +37,6 @@ int changeCount; // 距離変化回数カウント
 unsigned long c_time = 0;
 bool c_active = false;
 
-//float ax, ay, az; // 加速度センサーの値
 float vx = 0.0, vy = 0.0; // 速度（m/s）
 
 //速度の最小値最大値を求めるよ
@@ -48,7 +47,6 @@ float ymv = 100;
 
 // かそくどので使います
 float ax_offset = 0, ay_offset = 0, az_offset = 0;
-//float ax, ay, az;       // 加速度センサーの値
 
 void setup()
 {
@@ -68,8 +66,8 @@ void setup()
   button.waitForButton();
   calibrationCompass();
 
-  // button.waitForButton();
-  // offset();
+//   button.waitForButton();
+//   offset();
   
   button.waitForButton();
   goalAngle = angle = averageHeading(); // 向いている方角の取得(初期方角)
@@ -121,17 +119,15 @@ void loop()
   {
     timePrev = timeNow;
     //sendData();
-    //Serial.print(x);
-    //Serial.print(',');
-    //Serial.println(y);
-    //Serial.print(ax);
-    //Serial.print(',');
-    //Serial.print(ay);
-    //Serial.print(',');
-    //Serial.println(az);
-    // Serial.print(vx);
-    // Serial.print(',');
-    // Serial.println(vy);
+    Serial.print(x);
+    Serial.print(',');
+    Serial.println(y);
+//    Serial.print(ax);
+//    Serial.print(',');
+//    Serial.println(ay);
+//    Serial.print(vx);
+//    Serial.print(',');
+//    Serial.println(vy);
   }
 
   role = FORWARD;
@@ -159,7 +155,8 @@ void loop()
     
   case 1:
     // 敵陣ロボットの移動
-    forward_robot();
+    //place();
+    //forward_robot();
     break;
 
   case 2:
@@ -196,6 +193,7 @@ void loop()
   }
 
   // モーター出力の反映（各モードが motorL/motorR を設定する想定）
+  //motorR = motorL = 0;
   motors.setLeftSpeed(motorL);
   motors.setRightSpeed(motorR);
 }

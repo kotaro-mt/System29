@@ -25,8 +25,8 @@ void place() {
   //   }
   // } else {
 
-    // ノイズ除去（静止時の微小値をゼロに）
     // フィルタ
+    getAcc(ax, ay, az);
     ax = 0.1 * (compass.a.x - ax_offset) + 0.9 * ax;
     ay = 0.1 * (compass.a.y - ay_offset) + 0.9 * ay;
   
@@ -39,15 +39,11 @@ void place() {
     vx = ax_g * dt;
     vy = ay_g * dt;
 
-    //if (abs(vx) < 0.6) vx = 0;
-    //if (abs(vy) < 0.) vy = 0;
-    if(xMv < vx) {
-      xMv = vx;
-    }
-    if(yMv < vy) {
-      yMv = vy;
-    }
-    
+    if (abs(vx) < 1.0) vx = 0; // 止まっている場合の処理
+    if (abs(vy) < 1.0) vy = 0;
+
+    if(abs(vx) > 100) vx = 0; // 外れ地の処理
+    if(abs(vy) > 100) vy = 0;
     
     // 加速度を実装した場合の位置の特定
     x += vx * dt; // x座標の移動
