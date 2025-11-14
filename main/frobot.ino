@@ -30,12 +30,12 @@ void forward_robot() {
 
       case 1: // 敵陣まで直進
         Serial.println(f_mode);
-        motorR = 300;
+        motorR = 340;
         motorL = 300;
-        if(4000 < millis() - f_time && millis() - f_time < 4500 ) { // 5.5秒経過したら探索へ移行
-          motorR = 200;
-          motorL = -217;
-        } else if (5500 <= millis() - f_time) {
+        if(4000 < millis() - f_time && millis() - f_time < 4500 ) { // 秒経過したら探索へ移行
+          motorR = 300;
+          motorL = -300;
+        } else if (5000 <= millis() - f_time) {
           f_mode = 2; // 探索へ移行
           f_time = millis();
         }
@@ -63,9 +63,9 @@ void forward_robot() {
 
       case 3: // 探索-直進
         Serial.println(f_mode);
-        motorR = 200;
-        motorL = 217;
-          if (millis() - f_time >= 1500) { // 1秒後に探索へ
+        motorR = 400;
+        motorL = 400;
+          if (millis() - f_time >= 1000) { // 1秒後に探索へ
             f_mode = 2;
             f_time = millis();
           }
@@ -89,13 +89,12 @@ void forward_robot() {
 
       case 5: // キャッチ
         Serial.println(f_mode);
-          motorL = 217;
-          motorR = 200;
+          motorL = 300;
+          motorR = 300;
           if (dist <= 5) {
             f_mode = 6; // 運搬
             f_angle = angle; // 角度を記録（どっちの壁に運ぶのが楽か算出するため）
             f_time = millis();
-            Serial.println("[Back] 十分接近 → RETURNへ");
           }
           break;
       
@@ -121,17 +120,17 @@ void forward_robot() {
 
       case 100: // 投げるor押し出し
         Serial.println(f_mode);
-        if(millis() - f_time < 1000) { // 1.5秒間直進
-          motorR = 400; motorL = -400;
-        } else if (1000 <= millis() - f_time && millis() - f_time < 2000){
-          motorR = -200; motorL = -217; // 1.5秒間後退
+        if(millis() - f_time < 200) { // 押し出し直進
+          motorR = 400; motorL = 400;
+        } else if (200 <= millis() - f_time && millis() - f_time < 1200){
+          motorR = -400; motorL = -400; // 後退
           f_angle = angle;
         } else {
-          if (260 < angle - f_angle < 280) {
+          if (60 < abs(angle - f_angle)) {
             f_mode = 3; // 探索-直進へ移行
-          } else { // 反方向まで回転
-            motorR = -200;
-            motorL = 217;
+          } else { // 適当に回転
+            motorR = -400;
+            motorL = 400;
           }
         }
         break;

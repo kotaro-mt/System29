@@ -22,7 +22,7 @@ uint8_t role = -1; // 役割判定用変数
 enum Color {WHITE, BLACK, RED, BLUE }; // 色の定義
 enum Role {FORWARD, BACKWARD,CLIMB}; // 役割の定義(敵陣,自陣,山)
 float x = 0.0, y = 0.0; // マップに対するXY座標(赤のラインの左側を原点とする)
-float ax, ay, az; // 加速度センサーの値
+float ax = 0, ay = 0, az = 0; // 加速度センサーの値
 float goalAngle = 0.0f;// ゴール方向
 
 //=====================
@@ -37,16 +37,11 @@ int changeCount; // 距離変化回数カウント
 unsigned long c_time = 0;
 bool c_active = false;
 
-float vx = 0.0, vy = 0.0; // 速度（m/s）
-
-//速度の最小値最大値を求めるよ
-float xMv = 0;
-float xmv = 100;
-float yMv = 0;
-float ymv = 100;
+float vx = 0.0, vy = 0.0; // 速度（cm/s）
 
 // かそくどので使います
 float ax_offset = 0, ay_offset = 0, az_offset = 0;
+float axmap = 0, aymap = 0, azmap = 0; // map関数による丸め込み
 
 void setup()
 {
@@ -136,6 +131,7 @@ void loop()
   case 0: // 初期化処理
     climb_mode=0;
     motorL = motorR = 0;
+    // place(); //位置情報の初期設定
     Serial.println(role);
     // roleを文字列で表示
     Serial.print("[ROLE] 現在の役割：");

@@ -3,8 +3,7 @@
 //縦9秒ぐらい（240）
 
 unsigned long prevTime = 0;
-
-float ax_g, ay_g, az_g;
+float ax_g = 0, ay_g = 0, az_g = 0;
 
 void place() {
   unsigned long now = millis();
@@ -27,13 +26,17 @@ void place() {
 
     // フィルタ
     getAcc(ax, ay, az);
-    ax = 0.1 * (compass.a.x - ax_offset) + 0.9 * ax;
-    ay = 0.1 * (compass.a.y - ay_offset) + 0.9 * ay;
+    map(ax,-32768,32767,-128,127);
+    axmap = ax/256;
+    map(ay,-32768,32767,-128,127);
+    aymap = ay/256; 
+
+    axmap = 0.1 * (axmap - ax_offset) + 0.9 * axmap;
+    aymap = 0.1 * (aymap - ay_offset) + 0.9 * aymap;
   
     // 必要なら cm/s^2 単位に変換
-    ax_g = ax / 16384.0 * 9.80665 * 100;
-    ay_g = ay / 16384.0 * 9.80665 * 100;
-    //az_g = az / 16384.0 * 9.80665;
+    ax_g = axmap * 9.80665 * 100;
+    ay_g = aymap * 9.80665 * 100;
   
     // 現在の速度
     vx = ax_g * dt;
@@ -42,7 +45,7 @@ void place() {
     if (abs(vx) < 1.0) vx = 0; // 止まっている場合の処理
     if (abs(vy) < 1.0) vy = 0;
 
-    if(abs(vx) > 100) vx = 0; // 外れ地の処理
+    if(abs(vx) > 100) vx = 0; // 外れ値の処理
     if(abs(vy) > 100) vy = 0;
     
     // 加速度を実装した場合の位置の特定
