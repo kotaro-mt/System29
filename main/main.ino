@@ -204,6 +204,7 @@ void loop()
 
   case 6:
     // ゴールに運ぶ
+    goal();
     break;
 
   case 7: // 緊急対応
@@ -403,14 +404,11 @@ int goal()
       goalMode = 1;
 
     break;
-  case 1: // 前進
+
+    case 1: // 前進
     motorL = motorR = 200;
-    if (color == BLUE || color == RED)
-    { // ゴール到達
-      motorL = motorR = 0;
-      goalMode = 0;
-      return 1;
-    }
+    color_move(color, c_time);
+    goalMode = 0;
     break;
   }
   return 0;

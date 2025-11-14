@@ -28,7 +28,7 @@ void forward_robot() {
       case 1: // 敵陣まで直進
         motorR = 200;
         motorL = 217;
-        if(milli() - f_time > 6000) { // 6秒経過したら探索へ移行
+        if(millis() - f_time > 6000) { // 6秒経過したら探索へ移行
           f_mode = 3; // 探索へ移行
           f_time = millis();
         }
