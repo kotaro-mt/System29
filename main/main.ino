@@ -134,6 +134,7 @@ void loop()
     // Serial.println(vy);
   }
 
+  role = FORWARD;
   switch (mode)
   {
   case 0: // 初期化処理
