@@ -177,7 +177,7 @@ void loop()
     // 宝物を見つけて取りに行く
     if (catchObject() == 1)
     {
-      mode = 6;
+      mode = 5;
     }
     else if (catchObject() == 2)
     {
@@ -186,15 +186,11 @@ void loop()
     break;
       
   case 5:
-    // 宝物を見つけて投げ飛ばす
-    break;
-
-  case 6:
     // ゴールに運ぶ
     goal();
     break;
 
-  case 7: // 緊急対応
+  case 6: // 緊急対応
 
     break;
   }
@@ -321,7 +317,7 @@ void color_move(uint8_t color, unsigned long &refTime) {
       } else if (elapsedColorTime < 1300) {
         motorL = 200; motorR = -200; // 1秒回転
       } else {
-        mode = 1;
+        mode = 3;
         c_active = false;
       }
       break;
@@ -329,14 +325,14 @@ void color_move(uint8_t color, unsigned long &refTime) {
     case RED:
     case BLUE:
       // 前進 → 後退 → 半回転
-      if (elapsedColorTime < 500) {
-        motorL = motorR = 200;   // 前進0.5秒
-      } else if (elapsedColorTime < 2000) {
-        motorL = motorR = -150;  // 後退1.5秒
-      } else if (elapsedColorTime < 2800) {
+      if (elapsedColorTime < 300) {
+        motorL = motorR = 200;   // 前進0.3秒
+      } else if (elapsedColorTime < 1600) {
+        motorL = motorR = -150;  // 後退1.3秒
+      } else if (elapsedColorTime < 2400) {
         motorL = -200; motorR = 200; // 半回転0.8秒
       } else {
-        mode = 1;
+        mode = 3;
         c_active = false;
       }
       break;
