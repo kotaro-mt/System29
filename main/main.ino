@@ -140,19 +140,22 @@ void loop()
     climb_mode=0;
     motorL = motorR = 0;
     Serial.println(role);
-    if (role == FORWARD)
-    {
+    // roleを文字列で表示
+    Serial.print("[ROLE] 現在の役割：");
+    if(role == FORWARD){
+      Serial.println("FORWARD");
       mode = 1;
     }
-    else if (role == CLIMB)
-    {
+    else if(role == CLIMB){
+      Serial.println("CLIMB");
       mode = 2;
     }
-    else
-    {
+    else{
+      Serial.println("BACKWARD");
       mode = 3;
     }
     break;
+    
   case 1:
     // 敵陣ロボットの移動
     forward_robot();
@@ -166,24 +169,7 @@ void loop()
 
   case 3:
     // 探索モード
-    if (search())
-    {
-      mode = 4;
-      motorL = motorR = 0;
-      // roleを文字列で表示
-      Serial.print("[ROLE] 現在の役割：");
-      if(role == FORWARD){
-        Serial.println("FORWARD");
-        mode = 1;
-      }
-      else if(role == CLIMB){
-        Serial.println("CLIMB");
-        mode = 2;
-      }
-      else{
-        Serial.println("BACKWARD");
-        mode = 3;
-      }
+    search();
       break;
 
   case 4:
@@ -215,7 +201,6 @@ void loop()
   // モーター出力の反映（各モードが motorL/motorR を設定する想定）
   motors.setLeftSpeed(motorL);
   motors.setRightSpeed(motorR);
-}
 }
 
 //===================
