@@ -119,9 +119,9 @@ void loop()
   {
     timePrev = timeNow;
     //sendData();
-    Serial.print(x);
-    Serial.print(',');
-    Serial.println(y);
+    // Serial.print(x);
+    // Serial.print(',');
+    // Serial.println(y);
 //    Serial.print(ax);
 //    Serial.print(',');
 //    Serial.println(ay);

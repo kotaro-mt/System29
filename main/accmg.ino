@@ -63,30 +63,29 @@ void  calibrationCompass()
   compass.m_min.y = running_min.y;
 }
 
-//void getAcc(float& ax, float& ay, float& az)
-//{
-//  compass.read();
-//  av_ax = av_ax + compass.a.x;
-//  av_ay = av_ax + compass.a.y;
-//  av_az = av_az + compass.a.z;
-//}
-
-float av_ax, av_ay, av_az;
 void getAcc(float& ax, float& ay, float& az)
 {
-  av_ax = av_ay = av_az = 0;
-  for (int i = 0; i <= 9; i++) {
   compass.read();
-  av_ax = av_ax + compass.a.x;
-  av_ay = av_ax + compass.a.y;
-  av_az = av_az + compass.a.z;
-  }
-
-  ax = av_ax / 10;
-  ay = av_ay / 10;
-  az = av_az / 10;
-  
+  ax = compass.a.x;
+  ay = compass.a.y;
+  az = compass.a.z;
 }
+
+// float av_ax, av_ay, av_az;
+// void getAcc(float& ax, float& ay, float& az)
+// {
+//   av_ax = av_ay = av_az = 0;
+//   for (int i = 0; i <= 9; i++) {
+//   compass.read();
+//   av_ax = av_ax + compass.a.x;
+//   av_ay = av_ax + compass.a.y;
+//   av_az = av_az + compass.a.z;
+//   }
+
+//   ax = av_ax / 10;
+//   ay = av_ay / 10;
+//   az = av_az / 10;
+// }
 
 void CalibrationCompassManual()
 {
