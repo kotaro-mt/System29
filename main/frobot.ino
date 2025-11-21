@@ -1,103 +1,161 @@
+// motorR = 200
+//motorL = 217
+// 自陣が赤バージョン
+
 unsigned long f_time;
 float f_angle;
+int f_mode = 101;
 int erea;
 
 void forward_robot() {
  // 敵陣用ロボのロール
- if (role == FORWARD) {
-   switch (mode) {
-     case -1: // 敵陣まで移動
-      if (abs(angle - f_angle) < 10) {
-        motorR = -200;
-        motorL = 200;
-      } else {
-        
-      }
-     case 0: // 初期状態
-//        if (time - millis() > 3) { // 仮おき
-//          mode = 1; // 探索モードへ移行
-//        }
-      //  place(); // 初期位置の設定に必要
-       mode = 1;
-       f_time = millis();
-       f_angle = angle;
-       break;
+  if (role == FORWARD) {
+    switch (f_mode) {
+      case 101: // 敵陣まで移動：赤陣地の場合
+        Serial.println(f_mode);
+        f_angle = angle; // 最初の方向を記録
+        f_mode = 0;
+        break;
+    
+      case 0:
+        Serial.println(f_mode);
+        if (0 < angle && angle < 20) { //敵陣方向に回転
+          f_mode = 1;
+          f_time = millis();
+        } else {
+          motorR = -200;
+          motorL = 217;
+        }
+        break;
 
-     case 1: // 探索：直進
-      if (millis() - f_time < 2000){
-        motorR = motorL = 200;
-      } else {
-        mode = 2; // 探索：調査へ移行
-      }
+      case 1: // 敵陣まで直進
+        Serial.println(f_mode);
+        motorR = 340;
+        motorL = 300;
+        if(4000 < millis() - f_time && millis() - f_time < 4500 ) { // 秒経過したら探索へ移行
+          motorR = 300;
+          motorL = -300;
+        } else if (5000 <= millis() - f_time) {
+          f_mode = 2; // 探索へ移行
+          f_time = millis();
+        }
+        break;
+
+      case 2: // 探索-回転
+        Serial.println(f_mode);
+        if (millis() - f_time >= 1500) { // 1.5秒経過したら再直進
+          f_mode = 3; // 探索-直進
+          b_time = millis();
+        } else {
+          motorL = -217;  // 左旋回
+          motorR = 200;
+        }
+        // 途中で物体を発見した場合
+        if (0 < dist && dist < 30) {
+          if (!targetAngleRecorded) {     // まだ角度を記録していなければ
+            f_angle = angle;             // 現在角度を記録
+            targetAngleRecorded = true;
+          }
+          f_mode = 4;                      // CHECKへ
+          f_time = millis();
+        }
+        break;
+
+      case 3: // 探索-直進
+        Serial.println(f_mode);
+        motorR = 400;
+        motorL = 400;
+          if (millis() - f_time >= 1000) { // 1秒後に探索へ
+            f_mode = 2;
+            f_time = millis();
+          }
+
+          if (color == BLACK || color == RED || color == BLUE) {
+            f_mode = 99; // 色反応処理
+            f_time = millis();
+          }
+        break;
       
-      if (color == WHITE) {
-      } else {
-        mode = 3; // 後退
-        f_time = millis(); // 後退するために時間を保存
-        f_angle = angle; // 直前まで向いていた方向を保存
-      }
-       break;
-
-     case 2: // 探索：調査
-      motorR = -200; // 時計回りに回転
-      motorL = 200;
-
-      if (5 < dist < 30) { // 5cm~30cm未満の時発見
-        f_time = millis(); // 正面にオブジェクトが来るように調整
-        mode = 4;
-      }
-      break;
-
-     case 3:
-      if (180.0 < f_angle < 360.0) { // 左側の黒からの後退
-        motorR = -200;
-        motorL = 200;
-        if (0 < f_angle - 90 < 20) {
-          mode = 1;
+      case 4: // CHECK 静止反転
+        Serial.println(f_mode);
+        if (Check(dist, checkStartTime, prevDist, changeCount, 500, 3)) {
+          f_mode = 5;
+          f_time = millis();
+        } else if (millis() - checkStartTime >= 500) {
+          f_mode = 2;
+          f_time = millis();
         }
-      } else { // 右側の黒からの後退
-        motorR = 200;
-        motorL = -200;
-        if (0 < f_angle + 90 < 20) {
-          mode = 1;  
+        break;
+
+      case 5: // キャッチ
+        Serial.println(f_mode);
+          motorL = 300;
+          motorR = 300;
+          if (dist <= 5) {
+            f_mode = 6; // 運搬
+            f_angle = angle; // 角度を記録（どっちの壁に運ぶのが楽か算出するため）
+            f_time = millis();
+          }
+          break;
+      
+      case 6: //運搬-回転
+        Serial.println(f_mode);
+        if (80 < angle && angle < 100) { // 黒の壁を向いたら直進
+          motorR = 200; motorL = 217;
+          if (color == BLACK) { // 黒を認識したら
+            f_time = millis();
+            f_mode = 100; // 外に出す処理
+          }
+        } else { // 黒の壁を向くまで回転
+          motorR = -200;
+          motorL = 217;
         }
-      }
-      break;
+        break;
 
-     case 4: // 捕獲
-      motorR = motorL = 200;
-      if (dist < 5) {
-        mode = 5; // 投げるならモード100へ移行
-        //f_angle = angle; //捕まえた時の方向を記録
-      }
-      break;
+      case 99: // 色による判定
+        Serial.println(f_mode);
+        //color_move(color, f_time);
+        motorR = motorL = 0;
+        break;
 
-     case 5: // お持ち帰り：回転
-       motorR = motorL = 0;
-       break;
+      case 100: // 投げるor押し出し
+        Serial.println(f_mode);
+        if(millis() - f_time < 200) { // 押し出し直進
+          motorR = 400; motorL = 400;
+        } else if (200 <= millis() - f_time && millis() - f_time < 1200){
+          motorR = -400; motorL = -400; // 後退
+          f_angle = angle;
+        } else {
+          if (60 < abs(angle - f_angle)) {
+            f_mode = 3; // 探索-直進へ移行
+          } else { // 適当に回転
+            motorR = -400;
+            motorL = 400;
+          }
+        }
+        break;
 
-     case 100: // 投げる
-      if ( f_angle)
-       motorR = 400;
-       motorL = 400;
+      // case 6: // 運搬-自陣ver
+      //   if (160 < angle < 200) { // 運搬
+      //     motorR = 200;  motorL = 217;
+      //   } else { // 自陣のほうを向く
+      //     motorR = 200;  motorL = -217;
+      //     if (color == RED) { // 赤を踏んだら押し出し
+      //       f_time = millis();
+      //       f_mode = 7;
+      //     }
+      //   }
+      //   break;
 
-       if (color == BLACK) {
-         mode = 1;
-       }
-       break;
-   }
- }
+      // case 7:
+      //   if (millis() - f_time < 1000) {
+      //       motorR = 200;  motorL = 217;
+      //   } else {
+      //     motorR = 200;  motorL = -217;
+      //     if (0 < f_angle - angle < 20) {
+      //       f_mode = 3;
+      //     }
+      //   }
+    }
+  }
 }
-
-// 色の判定による挙動の関数
-// void color_move() {
-//   if (color == BLACK) {
-//     motorR = motorL = 0;
-//   } else if (color == BLUE) {
-//     // 押出の処理
-//   } else if (color == RED) {
-//     // 押出の処理
-//   } else { // 白色の時
-//     motorR = motorL = 150;
-//   }
-// }

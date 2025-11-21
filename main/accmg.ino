@@ -32,7 +32,7 @@ void  calibrationCompass()
     -32767, -32767, -32767
   };
 
-  motorL = 200;
+  motorL = 217;
   motorR = -200;
   motors.setLeftSpeed(motorL);
   motors.setRightSpeed(motorR);
@@ -70,6 +70,22 @@ void getAcc(float& ax, float& ay, float& az)
   ay = compass.a.y;
   az = compass.a.z;
 }
+
+// float av_ax, av_ay, av_az;
+// void getAcc(float& ax, float& ay, float& az)
+// {
+//   av_ax = av_ay = av_az = 0;
+//   for (int i = 0; i <= 9; i++) {
+//   compass.read();
+//   av_ax = av_ax + compass.a.x;
+//   av_ay = av_ax + compass.a.y;
+//   av_az = av_az + compass.a.z;
+//   }
+
+//   ax = av_ax / 10;
+//   ay = av_ay / 10;
+//   az = av_az / 10;
+// }
 
 void CalibrationCompassManual()
 {
@@ -138,6 +154,22 @@ float averageHeading()
 
 //   return heading(avg);
 // }
+
+
+float offset() {
+  const int samples = 100;
+  long sum_x = 0, sum_y = 0, sum_z = 0;
+  for (int i = 0; i < samples; i++) {
+    compass.read();
+    sum_x += compass.a.x;
+    sum_y += compass.a.y;
+    sum_z += compass.a.z;
+    delay(10);
+  }
+  ax_offset = sum_x / (float)samples;
+  ay_offset = sum_y / (float)samples;
+  az_offset = (sum_z / (float)samples) - 16384.0;
+}
 
 float mxScaled() {
   compass.read();

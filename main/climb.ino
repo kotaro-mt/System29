@@ -19,6 +19,8 @@ int count=0; //カウント用
 getAcc(ax, ay, az); // 加速度センサーの値を取得
 
 avg_ax=0.9*avg_ax+0.1*ax; // 低域通過フィルタ
+
+//Serial.println(climb_mode);
 avg_mx=0.9*avg_mx+0.1*mxScaled(); // 低域通過フィルタ
 timeNow_c=millis();
 
