@@ -35,7 +35,7 @@ void  calibrationCompass()
   motorL = 200;
   motorR = -200;
 
-  //motorL = 300;
+  //motorL = 300; //喜多用
   //motorR = -300;
   
   motors.setLeftSpeed(motorL);
