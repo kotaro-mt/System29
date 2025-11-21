@@ -10,12 +10,12 @@ int colorValue[COLORNUM][3] = {
 };
 
 // 喜多
-// int colorValue[COLORNUM][3] = {
-//   {255, 255, 255},   // 白色の値
-//   {0,0,0}, //黒色の値
-//   {122, 22, 26},   // 赤色の値
-//   {10, 30, 70}    // 青色の値
-// };
+/* int colorValue[COLORNUM][3] = {
+   {255, 255, 255},   // 白色の値
+   {0,0,0}, //黒色の値
+   {122, 22, 26},   // 赤色の値
+   {10, 30, 70}    // 青色の値
+ };*/
 
 
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_60X);
@@ -30,7 +30,12 @@ void  CalibrationColorSensor() // カラーセンサーのキャリブレーシ�
 
   tcs.begin(); // カラーセンサーのsetup
   
+<<<<<<< HEAD
   motors.setSpeeds(100, 100); 
+=======
+  motors.setSpeeds(60, 60);
+  //motors.setSpeeds(100, 100); // 喜多用
+>>>>>>> d1c2bd5c2b25b1af75486c28627ebf4b2172faa2
 
   r_min = 30000;
   g_min = 30000;
