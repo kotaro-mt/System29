@@ -34,7 +34,7 @@ switch(climb_mode){
   case 1: //山頂到達判定
   {
     // 目標 ay（センサ単位）に近づける制御
-    const float target_ay = 2700.0f;   // 目標値（実機に合わせて変更）
+    const float target_ay = 3000.0f;   // 目標値（実機に合わせて変更）
     const float Kp_ay = 0.02f;      // 比例ゲイン（チューニング）
 
     static float avg_ay = 0.0f;     // ay のローパス用蓄積
@@ -42,6 +42,8 @@ switch(climb_mode){
 
     // ay を平滑化してノイズを抑える
     avg_ay = 0.9f * avg_ay + 0.1f * ay;
+
+    Serial.println(avg_ay);
 
     // 誤差に比例して舵を決定
     float error = target_ay - avg_ay;

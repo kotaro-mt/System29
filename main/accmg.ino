@@ -33,7 +33,7 @@ void  calibrationCompass()
   };
 
   motorL = 217;
-  motorR = -200;
+  motorR = -220;
   motors.setLeftSpeed(motorL);
   motors.setRightSpeed(motorR);
 
