@@ -135,14 +135,14 @@ void loop()
 
   // 色割込み判定（どのモードからでも安全に遷移
   // 色動作が発生していない状態で、黒/赤/青を検出したら mode=99 に遷移
-  if (!isColorAction && (color == BLACK || color == RED || color == BLUE)) {
+  /*if (!isColorAction && (color == BLACK || color == RED || color == BLUE)) {
     isColorAction = true;
     modeBeforeColor = mode;
     c_time = millis();
     Serial.print("[COLOR] detected -> entering COLOR_ACTION. color=");
     Serial.println(color);
     mode = 99; // 色専用モード
-  }
+  }*/
 
   switch (mode)
   {
@@ -210,12 +210,12 @@ void loop()
 
   case 99: // 色動作専用モード（割込み）
     {
-      bool finished = color_move(color, c_time);
+      /*bool finished = color_move(color, c_time);
       if (finished) {
         Serial.println("[COLOR] action finished -> restoring previous mode");
         isColorAction = false;
         mode = modeBeforeColor;
-      }
+      }*/
     }
     break;
 
