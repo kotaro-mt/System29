@@ -10,6 +10,8 @@ int speed=0;
 unsigned long timePrev_c=0;
 unsigned long timeNow_c=0;
 
+
+
 int MountClimb(){ 
 
 float diff=0;
@@ -24,7 +26,7 @@ timeNow_c=millis();
 
 switch(climb_mode){
   case 0: //山登り開始
-    speed=200;
+    speed=250;
     if(avg_ax> 5000){ //傾きが一定以上になったら
       climb_mode=1; //山頂到達判定へ
     }
@@ -40,6 +42,8 @@ switch(climb_mode){
 
     // ay を平滑化してノイズを抑える
     avg_ay = 0.9f * avg_ay + 0.1f * ay;
+
+    Serial.println(avg_ay);
 
     // 誤差に比例して舵を決定
     float error = target_ay - avg_ay;
@@ -58,35 +62,46 @@ switch(climb_mode){
   }
   break;
   case 2: //山頂方向に回転
-    speed=-100;
+    speed=-200;
     diff=-0.02*ay;
-    if(timeNow_c-timePrev_c>2000){
-      if(avg_ax<500){
+    if(timeNow_c-timePrev_c>500){
         climb_mode =3;
-      }
+        timePrev_c=timeNow_c;
+      
     }
     break;
   case 3: //物体を取りに行く
-    speed = 250;
+    speed = 220;
     diff = -0.02*ay;;
-    if(avg_ax<500){
-      climb_mode=4;
+    if(timeNow_c-timePrev_c>1500){
+      if(ax<2000 ||(dist>0&&dist<5)){
+        climb_mode =4;
+        timePrev_c=timeNow_c;
+      }
     }
     break;
-  case 4: //山降り開始
-    speed = 200;
-    if(avg_ax>-5000){ //山を降りきったら
-      climb_mode = 5;
+  case 4: //物体取得準備
+    speed=0;
+    diff=-400;
+    if(timeNow_c-timePrev_c>100){
+      climb_mode=5;
     }
     break;
-  case 5: //山降り完了
+  case 5: //物体検知
+    speed=200;
+    diff=0;
+    if(avg_ax<-1000){ //山を降り始めたら
+      climb_mode = 6;
+    }
+
+  break;
+  case 6: //山降り開始
     speed = 200;
     diff = -0.02*ay;
-    if(avg_ax> 500){ //平地に戻ったら
+    if(avg_ax> -500){ //平地に戻ったら
       return 1; //成功
     }
     break;
-
 }
 motorL = speed + diff;
 motorR = speed - diff;

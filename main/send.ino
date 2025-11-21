@@ -10,7 +10,7 @@
 // 7: color
 // 8: terminator '\n'
 
-const uint8_t FRAME_LEN = 9;
+const uint8_t FRAME_LEN = 10;
 
 void sendData(){
     int angle_s = (int)(angle * 10.0f); // existing scaling
@@ -18,6 +18,7 @@ void sendData(){
     uint16_t u_angle = (uint16_t)angle_s;
     uint16_t u_mode  = (uint16_t)mode;
     uint8_t u_color  = (uint8_t)color;
+    uint8_t u_id = (uint8_t)id;
 
     uint8_t buf[FRAME_LEN];
     buf[0] = 'H';
@@ -28,6 +29,7 @@ void sendData(){
     buf[5] = (u_mode >> 8) & 0xFF;
     buf[6] = u_mode & 0xFF;
     buf[7] = u_color;
+    buf[8] = u_id;
     buf[8] = '\n';
 
     // Avoid blocking: only write if TX buffer has enough space
