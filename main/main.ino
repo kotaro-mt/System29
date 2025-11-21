@@ -38,7 +38,7 @@ unsigned long checkStartTime; // 判定処理の計測開始時刻
 int prevDist;  // 前回計測した距離
 int changeCount; // 距離変化回数カウント
 
-// 色動作用タイマー（旧 c_time/c_active を整理）
+// 色動作用タイマー
 unsigned long c_time = 0;
 bool isColorAction = false;   // 色動作中フラグ
 int modeBeforeColor = 0;      // 色動作前の mode を保存
@@ -48,10 +48,6 @@ float vx = 0.0, vy = 0.0; // 速度（cm/s）
 // かそくどので使います
 float ax_offset = 0, ay_offset = 0, az_offset = 0;
 float axmap = 0, aymap = 0, azmap = 0; // map関数による丸め込み
-
-// color_move の参照渡し版
-//bool color_move(uint8_t detectedColor, unsigned long &refTime);
-//bool rotateToAngle(float targetAngle, float tolerance=5.0f);
 
 void setup()
 {
@@ -491,11 +487,11 @@ int goal()
 // 役割の分類
 int ClassifyRole()
 { 
-  if (230 < angle && angle < 320)
+  if (angle >= 60 && angle < 130)
   {
     return FORWARD;
   }
-  else if (angle >= 60 && angle < 130)
+  else if (230 < angle && angle < 320)
   {
     return BACKWARD;
   }
