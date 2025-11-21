@@ -139,7 +139,7 @@ void loop()
     isColorAction = true;
     modeBeforeColor = mode;
     c_time = millis();
-    Serial.print("[COLOR] detected -> entering COLOR_ACTION. color=");
+    Serial.print("[COLOR] 検出 -> COLOR_ACTIONを実行. color=");
     Serial.println(color);
     mode = 99; // 色専用モード
   }*/
@@ -212,7 +212,7 @@ void loop()
     {
       /*bool finished = color_move(color, c_time);
       if (finished) {
-        Serial.println("[COLOR] action finished -> restoring previous mode");
+        Serial.println("[COLOR] 終了 -> 前のモードに戻る");
         isColorAction = false;
         mode = modeBeforeColor;
       }*/
@@ -475,7 +475,7 @@ void reinitializeAll()
   motors.setLeftSpeed(0);
   motors.setRightSpeed(0);
 
-  Serial.println("[INFO] reinitializeAll: stopping motors and resetting sensors/state");
+  Serial.println("[INFO] reinitializeAll: モーター停止センサの状態をリセット");
 
   // センサー類の再セットアップ（ハード初期化）
   initWaveSensor();
