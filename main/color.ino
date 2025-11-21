@@ -78,7 +78,7 @@ void getRGB(float& r0, float& g0, float& b0)  // RGB値の取得
 
 }
 
-int classifyColor(){ //
+uint8_t classifyColor(){ //
   int minDistColor=-1; //最短距離の色
   float minDist=1000; //最短距離 
   for(int i=0;i<COLORNUM;i++){
