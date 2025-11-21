@@ -8,6 +8,7 @@ ZumoMotors motors;
 Pushbutton button(ZUMO_BUTTON);
 ZumoBuzzer buzzer;
 
+const int id=1; //processsing通信用
 int mode = 0;                    // 動作モード
 int climb_mode = 0;
 int motorL, motorR;              // モーター速度
@@ -122,6 +123,7 @@ void loop()
     break;
   case 1:
     // 敵陣ロボットの移動
+    forward_robot();
     break;
 
   case 2:
@@ -135,7 +137,6 @@ void loop()
     if (search())
     {
       mode = 4;
-      motorL = motorR = 0;
     }
     break;
 
@@ -157,10 +158,12 @@ void loop()
 
   case 6:
     // ゴールに運ぶ
+    goal();
+    mode = 3;
     break;
 
   case 7: // 緊急対応
-
+    motorL = motorR = 0;
     break;
   }
 
@@ -185,7 +188,7 @@ int search()
   case 0: // 直進
     if (color == WHITE)
     {
-      motorL = motorR = 200;
+      motorL = motorR = 100;
       if (timeNow1 - timePrev1 > 2000)
       {
         timePrev1 = timeNow1;

@@ -64,6 +64,7 @@ void serialEvent(Serial p){
     int high_m = p.read() & 0xFF;
     int low_m  = p.read() & 0xFF;
     int col    = p.read() & 0xFF;
+    int id     = p.read() & 0xFF;
     int term   = p.read() & 0xFF; // expected '\n'
 
     if (term != '\n') {
@@ -81,19 +82,19 @@ void serialEvent(Serial p){
       dist1 = dist;
       mode1 = mode_val;
       angle1 = angle_val;
-      println(angle1);
+      println(id,dist1,angle1,mode1,col1);
     } else if (zumo_id == 2) {
       col2 = col;
       dist2 = dist;
       mode2 = mode_val;
       angle2 = angle_val;
-      println(dist2, angle2, mode2, col2);
+      println(id,dist2, angle2, mode2, col2);
     } else if (zumo_id == 3) {
       col3 = col;
       dist3 = dist;
       mode3 = mode_val;
       angle3 = angle_val;
-      println(dist3, angle3, mode3, col3);
+      println(id,dist3, angle3, mode3, col3);
     }
   }
 }
