@@ -1,7 +1,7 @@
 #include <Adafruit_TCS34725.h> // カラーセンサライブラリのヘッダーファイル
 
 #define COLORNUM 4 // 判定する色の数
- 松永
+// 松永
 int colorValue[COLORNUM][3] = {
   {255, 255, 255},   // 白色の値
   {0,0,0}, //黒色の値
