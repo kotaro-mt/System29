@@ -12,7 +12,7 @@ ZumoBuzzer buzzer;
 // 変数定義
 int mode = 0; // 動作モード
 int climb_mode = 0;
-int motorL, motorR; // モーター速度
+int motorL = 0, motorR = 0; // モーター速度（初期化）
 float red,green,blue; // RGB値
 int dist=0; // オブジェクトまでの距離
 float angle=0;  //向いている方角
@@ -33,15 +33,20 @@ unsigned long checkStartTime; // 判定処理の計測開始時刻
 int prevDist;  // 前回計測した距離
 int changeCount; // 距離変化回数カウント
 
-// 色動作用タイマー
+// 色動作用タイマー（旧 c_time/c_active を整理）
 unsigned long c_time = 0;
-bool c_active = false;
+bool isColorAction = false;   // 色動作中フラグ
+int modeBeforeColor = 0;      // 色動作前の mode を保存
 
 float vx = 0.0, vy = 0.0; // 速度（cm/s）
 
 // かそくどので使います
 float ax_offset = 0, ay_offset = 0, az_offset = 0;
 float axmap = 0, aymap = 0, azmap = 0; // map関数による丸め込み
+
+// color_move の参照渡し版
+//bool color_move(uint8_t detectedColor, unsigned long &refTime);
+//bool rotateToAngle(float targetAngle, float tolerance=5.0f);
 
 void setup()
 {
@@ -81,6 +86,12 @@ void setup()
     if (goalAngle < 0.0f)
       goalAngle += 360.0f;
   }
+  else if(role == CLIMB)
+  {
+    goalAngle -= 180.0f;
+    if (goalAngle < 0.0f)
+      goalAngle += 360.0f;
+  }
   // 初回送信時間の設定
   timePrev = millis();
 
@@ -101,6 +112,7 @@ void loop()
     }
   }
 
+  // センサ読み取り
   getRGB(red, green, blue); // RGB値の取得
   getAcc(ax, ay, az);       // 加速度の取得
 
@@ -117,22 +129,32 @@ void loop()
     // Serial.print(x);
     // Serial.print(',');
     // Serial.println(y);
-//    Serial.print(ax);
-//    Serial.print(',');
-//    Serial.println(ay);
-//    Serial.print(vx);
-//    Serial.print(',');
-//    Serial.println(vy);
+    // Serial.print(ax);
+    // Serial.print(',');
+    // Serial.println(ay);
+    // Serial.print(vx);
+    // Serial.print(',');
+    // Serial.println(vy);
   }
 
-  role = FORWARD;
+  // 色割込み判定（どのモードからでも安全に遷移
+  // 色動作が発生していない状態で、黒/赤/青を検出したら mode=99 に遷移
+  if (!isColorAction && (color == BLACK || color == RED || color == BLUE)) {
+    isColorAction = true;
+    modeBeforeColor = mode;
+    c_time = millis();
+    Serial.print("[COLOR] detected -> entering COLOR_ACTION. color=");
+    Serial.println(color);
+    mode = 99; // 色専用モード
+  }
+
   switch (mode)
   {
   case 0: // 初期化処理
     climb_mode=0;
     motorL = motorR = 0;
     // place(); //位置情報の初期設定
-    Serial.println(role);
+    //Serial.println(role);
     // roleを文字列で表示
     Serial.print("[ROLE] 現在の役割：");
     if(role == FORWARD){
@@ -151,8 +173,8 @@ void loop()
     
   case 1:
     // 敵陣ロボットの移動
-    //place();
-    //forward_robot();
+    // place();
+    forward_robot();
     break;
 
   case 2:
@@ -164,17 +186,20 @@ void loop()
   case 3:
     // 探索モード
     search();
-      break;
+    break;
 
   case 4:
     // 宝物を見つけて取りに行く
-    if (catchObject() == 1)
     {
-      mode = 5;
-    }
-    else if (catchObject() == 2)
-    {
-      mode = 3;
+      int res = catchObject();
+      if (res == 1)
+      {
+        mode = 5;
+      }
+      else if (res == 2)
+      {
+        mode = 3;
+      }
     }
     break;
       
@@ -184,12 +209,27 @@ void loop()
     break;
 
   case 6: // 緊急対応
+    // 必要なら記述
+    break;
 
+  case 99: // 色動作専用モード（割込み）
+    {
+      bool finished = color_move(color, c_time);
+      if (finished) {
+        Serial.println("[COLOR] action finished -> restoring previous mode");
+        isColorAction = false;
+        mode = modeBeforeColor;
+      }
+    }
+    break;
+
+  default:
+    // 未定義のmodeは安全停止
+    motorL = motorR = 0;
     break;
   }
 
   // モーター出力の反映（各モードが motorL/motorR を設定する想定）
-  //motorR = motorL = 0;
   motors.setLeftSpeed(motorL);
   motors.setRightSpeed(motorR);
 }
@@ -197,6 +237,70 @@ void loop()
 //===================
 // 共通関数群
 //===================
+// 角度回転専用関数
+bool rotateToAngle(float targetAngle, float tolerance) {
+  float diff = relativeHeading(angle, targetAngle);
+  if (abs(diff) <= tolerance) {
+    motorL = motorR = 0;
+    return true;
+  }
+  if (diff > 0) { motorL = 150; motorR = -150; }
+  else { motorL = -150; motorR = 150; }
+  return false;
+}
+
+// 色処理
+bool color_move(uint8_t detectedColor, unsigned long &refTime) {
+  static bool rotating = false;
+  static float targetAngle = 0;
+  unsigned long t = millis() - refTime;
+
+  switch (detectedColor) {
+    case BLACK:
+      if (t < 300) {
+        motorL = motorR = -200;
+      } else if (t < 1300) {
+        motorL = 200;
+        motorR = -200;
+      } else {
+          if (!rotating) {
+              targetAngle = angle + 90.0f;
+              if (targetAngle >= 360.0f) targetAngle -= 360.0f;
+              rotating = true;
+          }
+          if (rotateToAngle(targetAngle, 5.0f)) {
+              rotating = false;
+              return true;
+          }
+      }
+      break;
+
+    case RED:
+    case BLUE:
+      if (t < 300) {
+        motorL = motorR = 200;
+      } else if (t < 1600) {
+          motorL = motorR = -150;
+      } else {
+          if (!rotating) {
+              targetAngle = angle + 180.0f;
+              if (targetAngle >= 360.0f) targetAngle -= 360.0f;
+              rotating = true;
+          }
+          if (rotateToAngle(targetAngle, 5.0f)) {
+              rotating = false;
+              return true;
+          }
+      }
+      break;
+
+    default:
+      motorL = motorR = 0;
+      return true;
+  }
+
+  return false;
+}
 
 // 探索についての関数
 int search()
@@ -280,6 +384,7 @@ int catchObject()
       break;
 
     case 1: // 接近して保持
+      // 割込みの色は中央で処理するため、ここは通常の接近処理
       motorL = motorR = 150;
       if (dist < 5) {
         catchMode = 2;
@@ -294,49 +399,7 @@ int catchObject()
   return 0;
 }
 
-// 🔹 色に応じた動作処理
-void color_move(uint8_t color, unsigned long &refTime) {
-  if (!c_active) {
-    c_time = millis();
-    c_active = true;
-  }
 
-  unsigned long elapsedColorTime = millis() - c_time;
-
-  switch (color) {
-    case BLACK:
-      // 後退 → 回転 → 復帰
-      if (elapsedColorTime < 300) {
-        motorL = motorR = -150; // 0.3秒後退
-      } else if (elapsedColorTime < 1300) {
-        motorL = 200; motorR = -200; // 1秒回転
-      } else {
-        mode = 3;
-        c_active = false;
-      }
-      break;
-
-    case RED:
-    case BLUE:
-      // 前進 → 後退 → 半回転
-      if (elapsedColorTime < 300) {
-        motorL = motorR = 200;   // 前進0.3秒
-      } else if (elapsedColorTime < 1600) {
-        motorL = motorR = -150;  // 後退1.3秒
-      } else if (elapsedColorTime < 2400) {
-        motorL = -200; motorR = 200; // 半回転0.8秒
-      } else {
-        mode = 3;
-        c_active = false;
-      }
-      break;
-
-    default:
-      motorL = motorR = 200;
-      c_active = false;
-      break;
-  }
-}
 
 // 🔹 静止判定関数（距離センサーの微小変化を無視）
 bool Check(int currentDist, unsigned long &checkStartTime, int &prevDist, int &changeCount,
@@ -378,12 +441,10 @@ int goal()
     motorR = -150;
     if (relativeHeading(angle, goalAngle) < 5.0 && relativeHeading(angle, goalAngle) > -5.0) // 目標方角に到達
       goalMode = 1;
-
     break;
 
-    case 1: // 前進
+  case 1: // 前進
     motorL = motorR = 200;
-    color_move(color, c_time);
     goalMode = 0;
     break;
   }
