@@ -131,7 +131,7 @@ void Back() {
 
       case 7: // 色検出処理（共通関数で実行）
         Serial.println("[Back] color_move実行");
-        color_move(color, b_time);
+        //color_move(color, b_time);
         break;
     }
   }
