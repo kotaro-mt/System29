@@ -30,20 +30,7 @@ void  CalibrationColorSensor() // カラーセンサーのキャリブレーシ�
 
   tcs.begin(); // カラーセンサーのsetup
   
-<<<<<<< HEAD
   motors.setSpeeds(100, 100); 
-=======
-//<<<<<<< HEAD
-  motors.setSpeeds(100, 100); 
-//=======
-  motors.setSpeeds(60, 60);
-//<<<<<<< HEAD
-  //motors.setSpeeds(100, 100); //喜多
-//=======
-  //motors.setSpeeds(100, 100); // 喜多用
-//>>>>>>> d1c2bd5c2b25b1af75486c28627ebf4b2172faa2
-//>>>>>>> a49a83f024e70a95b604267f3fd3172bde2aad98
->>>>>>> 43d1fe97caecc97ff1700c4c416ba41cc08cbe59
 
   r_min = 30000;
   g_min = 30000;
