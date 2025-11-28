@@ -32,17 +32,17 @@ void  calibrationCompass()
     -32767, -32767, -32767
   };
 
-<<<<<<< HEAD
+//<<<<<<< HEAD
   motorL = 217;
   motorR = -220;
-=======
+//=======
   motorL = 200;
   motorR = -200;
 
-  //motorL = 300;
+  //motorL = 300; //喜多用
   //motorR = -300;
   
->>>>>>> d1c2bd5c2b25b1af75486c28627ebf4b2172faa2
+//>>>>>>> d1c2bd5c2b25b1af75486c28627ebf4b2172faa2
   motors.setLeftSpeed(motorL);
   motors.setRightSpeed(motorR);
 

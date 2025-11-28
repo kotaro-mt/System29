@@ -30,9 +30,9 @@ void forward_robot() {
 
       case 1: // 敵陣まで直進
         Serial.println(f_mode);
-        motorR = 300;
-        motorL = 350;
-        if(4000 < millis() - f_time && millis() - f_time < 4500 ) { // 秒経過したら探索へ移行
+        motorR = 350;
+        motorL = 400;
+        if(3800 < millis() - f_time && millis() - f_time < 4500 ) { // 秒経過したら探索へ移行
           f_mode = 2;
           f_time = millis();
           //motorR = -300;
@@ -45,15 +45,15 @@ void forward_robot() {
 
       case 2: // 探索-回転
         Serial.println(f_mode);
-        if (millis() - f_time >= 1500) { // 1.5秒経過したら再直進
+        if (millis() - f_time >= 750) { // 1.5秒経過したら再直進
           f_mode = 3; // 探索-直進
-          b_time = millis();
+          f_time = millis();
         } else {
           motorL = -217;  // 左旋回
           motorR = 200;
         }
         // 途中で物体を発見した場合
-        if (0 < dist && dist < 30) {
+        if (0 < dist && dist < 35) {
           if (!targetAngleRecorded) {     // まだ角度を記録していなければ
             f_angle = angle;             // 現在角度を記録
             targetAngleRecorded = true;
@@ -102,8 +102,8 @@ void forward_robot() {
       
       case 6: //運搬-回転
         Serial.println(f_mode);
-        if (70 < angle && angle < 110) { // 黒の壁を向いたら直進
-          motorR = 200; motorL = 217;
+        if (80 < angle && angle < 130) { // 黒の壁を向いたら直進
+          motorR = 400; motorL = 400;
           if (color == BLACK) { // 黒を認識したら
             f_time = millis();
             f_mode = 100; // 外に出す処理
@@ -117,14 +117,18 @@ void forward_robot() {
       case 99: // 色による判定
         Serial.println(f_mode);
         //color_move(color, f_time);
-        motorR = motorL = 0;
+            if (millis() - f_time < 500) {
+              motorR = motorL = -400;
+            } else if (millis() - f_time > 500) {
+              f_mode = 2; // 探索回転へ移行
+            }
         break;
 
       case 100: // 投げるor押し出し
         Serial.println(f_mode);
         if(millis() - f_time < 200) { // 押し出し直進
           motorR = 400; motorL = 400;
-        } else if (200 <= millis() - f_time && millis() - f_time < 1200){
+        } else if (200 <= millis() - f_time && millis() - f_time < 1000){
           motorR = -400; motorL = -400; // 後退
           f_angle = angle;
         } else {
