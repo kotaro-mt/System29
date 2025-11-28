@@ -154,15 +154,15 @@ void loop()
 
   // 色割込み判定（どのモードからでも安全に遷移)
   // 色動作が発生していない状態で,黒/赤/青を検出した場合mode=99 に遷移
-  if (!isColorAction && (color == BLACK || color == RED || color == BLUE)) {
-    isColorAction = true;
-    modeBeforeColor = mode;
-    c_time = millis();
-    colorBeforeAction = color; // 検出色を保存
-    Serial.print("[COLOR] 検出 -> COLOR_ACTIONを実行. color=");
-    Serial.println(color);
-    mode = 99; // 色専用モード
-  }
+  // if (!isColorAction && (color == BLACK || color == RED || color == BLUE)) {
+  //   isColorAction = true;
+  //   modeBeforeColor = mode;
+  //   c_time = millis();
+  //   colorBeforeAction = color; // 検出色を保存
+  //   Serial.print("[COLOR] 検出 -> COLOR_ACTIONを実行. color=");
+  //   Serial.println(color);
+  //   mode = 99; // 色専用モード
+  // }
 
   switch (mode)
   {
@@ -189,7 +189,7 @@ void loop()
   case 1:
     // 敵陣ロボットの移動
     //place();
-    //forward_robot();
+    forward_robot();
     break;
 
   case 2:
@@ -226,7 +226,6 @@ void loop()
     if(goal()){
       mode=3;
     }
-  
     break;
 
   case 6: // 緊急対応
