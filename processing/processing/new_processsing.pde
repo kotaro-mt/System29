@@ -1,25 +1,36 @@
-////int dist1,dist2,dist3; // 距離
-////float angle1,angle2,angle3; // 地磁気センサの値
-////int mode1,mode2,mode3; // ロボットのモード
-////int col1,col2,col3;
-////int zumo_id = 0; // ロボットの番号
+//import processing.serial.*;
 
-//int f_time;
+//Serial port1;
+//Serial port2;
+//Serial port3;
+
+//int dist1,dist2,dist3;
+//float angle1,angle2,angle3;
+//int mode1,mode2,mode3;
+//int col1,col2,col3;
+
+//int zumo_id = 0;
+
 //float f = 1, map_f = 1.8, map_robot_f = 0.1; // 縮尺系
 //float robot1_x = 100, robot1_y = 100;
 
-//  ////左上を１右上を２左下を３右下を４としている
-//  //int ox1 = 0, oy1 = 0; // 左上のマスの原点
-//  //int ox2 = width, oy2 = 0; // 右上のマスの原点
-//  //int ox3 = 0, oy3 = height / 2; // 左下のマスの原点
-//  //int ox4 = width / 2, oy4 = height / 2; //右下のマスの原点
-
-//void setup() {
+//void setup(){
 //  size(1000, 700); // 中心(250, 175), 大きさ(500, 350)
-//  f_time = millis();
+  
+//  port1=new Serial(this,"COM4",9600); //Serialクラスのインスタンスを生成
+//  port1.clear();
+//  port1.bufferUntil('\n');
+  
+//  //port2=new Serial(this,"COM10",9600); //Serialクラスのインスタンスを生成
+//  //port2.clear();
+//  //port2.bufferUntil('\n');
+  
+//  //port3=new Serial(this,"COM11",9600); //Serialクラスのインスタンスを生成
+//  //port3.clear();
+//  //port3.bufferUntil('\n');
 //}
 
-//void draw() {
+//void draw(){
 //  background(0);
 //  window_squ(); // 画面を4分割
 //  draw_robot(325, 175, angle1, f); // ロボット1の回転の中心点(325, 175)とする
@@ -27,12 +38,72 @@
 //  draw_robot(325, 175 + height / 2, angle3, f); // ロボット3の回転の中心点(325, 175)とする
 //  map_draw(width / 2, height / 2, map_f);
 //  Text(20, 30);
-  
-//  // 回転確認用
-//  if (millis() - f_time > 10) {
-//    f_time = millis();
-//    //angle1++;
-//    //angle2--;
+//}
+
+//void serialEvent(Serial p){
+//  // determine which port triggered this event
+//  if(p == port1)
+//    zumo_id = 1;
+//  else if(p == port2)
+//    zumo_id = 2;
+//  else if(p == port3)
+//    zumo_id = 3;
+
+//  // process available bytes; use header-synchronization and unsigned conversion
+//  while (p.available() > 0) {
+//    int b = p.read();
+//    if (b < 0) break;
+//    int ub = b & 0xFF;
+//    if (ub != 'H') {
+//      // discard until header
+//      continue;
+//    }
+
+//    // need 8 more bytes after header (dist hi/lo, angle hi/lo, mode hi/lo, color, term)
+//    if (p.available() < 8) {
+//      // not enough data yet; wait for next serialEvent
+//      break;
+//    }
+
+//    int high_d = p.read() & 0xFF;
+//    int low_d  = p.read() & 0xFF;
+//    int high_a = p.read() & 0xFF;
+//    int low_a  = p.read() & 0xFF;
+//    int high_m = p.read() & 0xFF;
+//    int low_m  = p.read() & 0xFF;
+//    int col    = p.read() & 0xFF;
+//    int id     = p.read() & 0xFF;
+//    int term   = p.read() & 0xFF; // expected '\n'
+
+//    if (term != '\n') {
+//      // mismatch terminator: skip this frame
+//      continue;
+//    }
+
+//    int dist = (high_d << 8) | low_d;
+//    int temp_angle = (high_a << 8) | low_a;
+//    float angle_val = temp_angle / 10.0;
+//    int mode_val = (high_m << 8) | low_m;
+
+//    if (zumo_id == 1) {
+//      col1 = col;
+//      dist1 = dist;
+//      mode1 = mode_val;
+//      angle1 = angle_val;
+//      println(id,dist1,angle1,mode1,col1);
+//    } else if (zumo_id == 2) {
+//      col2 = col;
+//      dist2 = dist;
+//      mode2 = mode_val;
+//      angle2 = angle_val;
+//      println(id,dist2, angle2, mode2, col2);
+//    } else if (zumo_id == 3) {
+//      col3 = col;
+//      dist3 = dist;
+//      mode3 = mode_val;
+//      angle3 = angle_val;
+//      println(id,dist3, angle3, mode3, col3);
+//    }
 //  }
 //}
 
@@ -172,7 +243,4 @@
 //  draw_robot((robot1_x + width / 4 - map_w / 2) * f, (robot1_y + height / 4 - map_h / 2) * f, angle1, map_robot_f);
 //  translate(-x, -y);
 //  noFill();
-//}
-
-//void north(float x, float y, float angle, float f) {
 //}
