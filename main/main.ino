@@ -113,32 +113,8 @@ void loop()
   if (timeNow - timePrev > 500)
   {
     //sendData();
-<<<<<<< HEAD
     Serial.println(mode);
   }
-=======
-    // Serial.print(x);
-    // Serial.print(',');
-    // Serial.println(y);
-    // Serial.print(ax);
-    // Serial.print(',');
-    // Serial.println(ay);
-    // Serial.print(vx);
-    // Serial.print(',');
-    // Serial.println(vy);
-  }
-
-  // 色割込み判定（どのモードからでも安全に遷移
-  // 色動作が発生していない状態で、黒/赤/青を検出したら mode=99 に遷移
-  /*if (!isColorAction && (color == BLACK || color == RED || color == BLUE)) {
-    isColorAction = true;
-    modeBeforeColor = mode;
-    c_time = millis();
-    Serial.print("[COLOR] 検出 -> COLOR_ACTIONを実行. color=");
-    Serial.println(color);
-    mode = 99; // 色専用モード
-  }*/
->>>>>>> d1c2bd5c2b25b1af75486c28627ebf4b2172faa2
 
   switch (mode)
   {
@@ -202,23 +178,6 @@ void loop()
 
   case 6: // 緊急対応
 
-<<<<<<< HEAD
-=======
-  case 99: // 色動作専用モード（割込み）
-    {
-      /*bool finished = color_move(color, c_time);
-      if (finished) {
-        Serial.println("[COLOR] 終了 -> 前のモードに戻る");
-        isColorAction = false;
-        mode = modeBeforeColor;
-      }*/
-    }
-    break;
-
-  default:
-    // 未定義のmodeは安全停止
-    motorL = motorR = 0;
->>>>>>> d1c2bd5c2b25b1af75486c28627ebf4b2172faa2
     break;
   }
 
