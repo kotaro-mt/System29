@@ -33,6 +33,7 @@ float goalAngle = 0.0f;// ゴール方向
 unsigned long checkStartTime; // 判定処理の計測開始時刻
 int prevDist;  // 前回計測した距離
 int changeCount; // 距離変化回数カウント
+bool targetAngleRecorded = false;  // 角度が記録済みかどうか
 
 // 色動作用タイマー
 unsigned long c_time = 0;

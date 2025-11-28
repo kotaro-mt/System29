@@ -1,4 +1,4 @@
-unsigned long b_time;
+/*unsigned long b_time;
 float b_angle;
 int b_mode = 0;
 bool isChecking = false; // グローバル変数
@@ -135,4 +135,4 @@ void Back() {
         break;
     }
   }
-}
+}*/
