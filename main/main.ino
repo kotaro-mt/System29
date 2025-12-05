@@ -25,6 +25,7 @@ enum Role {FORWARD, BACKWARD,CLIMB}; // 役割の定義(敵陣,自陣,山)
 float x = 0.0, y = 0.0; // マップに対するXY座標(赤のラインの左側を原点とする)
 float ax = 0, ay = 0, az = 0; // 加速度センサーの値
 float goalAngle = 0.0f;// ゴール方向
+unsigned long b_time;
 
 //=====================
 // 共通関数用変数
@@ -271,7 +272,12 @@ void loop()
     // 未定義のmodeは安全停止
     motorL = motorR = 0;
     break;
+
+
+    motors.setLeftSpeed(motorL);
+    motors.setRightSpeed(motorR);
   }
+}
 
 //===================
 // 共通関数群
