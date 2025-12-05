@@ -40,6 +40,8 @@ unsigned long c_time = 0;
 bool isColorAction = false;   // 色動作中フラグ
 int modeBeforeColor = 0;      // 色動作前の mode を保存
 
+// フラグ：goal 中に色割込みが入ったか
+bool fromGoal = false;
 // 黒フェーズ用
 int blackPhase = 0;
 unsigned long blackPhaseTime = 0;
@@ -98,7 +100,7 @@ void setup()
 
   // 目標方角の設定(各自設定する必要あり)
   // 目標方角の設定（修正：条件と演算を正しく）
-  if (role == FORWARD) {
+  /*if (role == FORWARD) {
     goalAngle += 90.0f;
     if (goalAngle >= 360.0f) goalAngle -= 360.0f;
   } else if (role == BACKWARD) {
@@ -107,7 +109,7 @@ void setup()
   } else if (role == CLIMB) {
     goalAngle -= 180.0f;
     if (goalAngle < 0.0f) goalAngle += 360.0f;
-  }
+  }*/
         
   // 初回送信時間の設定
   timePrev = millis();
@@ -154,15 +156,15 @@ void loop()
 
   // 色割込み判定（どのモードからでも安全に遷移)
   // 色動作が発生していない状態で,黒/赤/青を検出した場合mode=99 に遷移
-  // if (!isColorAction && (color == BLACK || color == RED || color == BLUE)) {
-  //   isColorAction = true;
-  //   modeBeforeColor = mode;
-  //   c_time = millis();
-  //   colorBeforeAction = color; // 検出色を保存
-  //   Serial.print("[COLOR] 検出 -> COLOR_ACTIONを実行. color=");
-  //   Serial.println(color);
-  //   mode = 99; // 色専用モード
-  // }
+  if (!isColorAction && (color == BLACK || color == RED || color == BLUE)) {
+    isColorAction = true;
+    modeBeforeColor = mode;
+    c_time = millis();
+    colorBeforeAction = color; // 検出色を保存
+    Serial.print("[COLOR] 検出 -> COLOR_ACTIONを実行. color=");
+    Serial.println(color);
+    mode = 99; // 色専用モード
+  }
 
   switch (mode)
   {
@@ -174,14 +176,23 @@ void loop()
     Serial.print("[ROLE] 現在の役割：");
     if(role == FORWARD){
       Serial.println("FORWARD");
+      goalAngle += 90.0f;
+    if (goalAngle >= 360.0f)
+      goalAngle -= 360.0f;
       mode = 1;
     }
     else if(role == CLIMB){
       Serial.println("CLIMB");
+      goalAngle -= 180.0f;
+    if (goalAngle < 0.0f)
+      goalAngle += 360.0f;
       mode = 2;
     }
     else{
       Serial.println("BACKWARD");
+      goalAngle -= 90.0f;
+    if (goalAngle < 0.0f)
+      goalAngle += 360.0f;
       mode = 3;
     }
     break;
@@ -245,7 +256,13 @@ void loop()
         blackPhase = redPhase = bluePhase = 0;
         blackPhaseStarted = redPhaseStarted = bluePhaseStarted = false;
         rotateDir = 0; // 回転方向リセット    
-        mode = modeBeforeColor;  // 元モードに戻す
+        // goal 中に割り込まれていたら探索へ戻す
+        if (fromGoal) {
+          fromGoal = false;
+          mode = 3;
+        } else {
+          mode = modeBeforeColor;  // 元のモードに戻す
+        }
         }
     }
     break;
@@ -256,49 +273,45 @@ void loop()
     break;
   }
 
-  // モーター出力の反映（各モードが motorL/motorR を設定する想定）
-  motors.setLeftSpeed(motorL);
-  motors.setRightSpeed(motorR);
-}
-
 //===================
 // 共通関数群
 //===================
 
-// 角度回転専用関数（安定判定を追加）
+// 角度回転専用関数（安定判定付き）
+// targetAngle: 目標角度, tolerance: 許容誤差（度）
 bool rotateToAngle(float targetAngle, float tolerance)
 {
     float diff = relativeHeading(angle, targetAngle);
 
-    // 完了判定
+    // 到達判定
     if (fabs(diff) <= tolerance) {
         motorL = motorR = 0;
-        rotateDir = 0;
+        rotateDir = 0; // 回転方向リセット
         return true;
     }
 
-    // 1回決めた回転方向は絶対に変わらない
+    // 回転方向決定（初回のみ）
     if (rotateDir == 0) {
         rotateDir = (diff > 0.0f) ? 1 : -1;
     }
     int dir = rotateDir;
 
-    // P制御（減速つき）
+    // P制御（減速付き）
     const float Kp = 4.0f;
     int speed = fabs(diff) * Kp;
-    if (speed < 80) speed = 80;
+    if (speed < 100) speed = 100;
     if (speed > 250) speed = 250;
 
     // 実際の回転
-    if (dir > 0) {   // 左回り固定
+    if (dir > 0) {   // 左回り
         motorL = -speed;
         motorR =  speed;
-    } else {         // 右回り固定
+    } else {         // 右回り
         motorL =  speed;
         motorR = -speed;
     }
 
-    return false;
+    return false; // まだ到達していない
 }
 
 // 色処理
@@ -319,7 +332,7 @@ bool color_move(uint8_t detectedColor) {
                     Serial.println("後退[黒]");
                     motorL = motorR = -200;
 
-                    if (t - blackPhaseTime >= 600) {
+                    if (t - blackPhaseTime >= 400) {
                         blackPhase++;
                         blackPhaseStarted = false;  // 次のフェーズ用に必ずリセット
                     }
@@ -360,8 +373,9 @@ bool color_move(uint8_t detectedColor) {
                     }
                     Serial.println("前進[赤]");
                     motorL = motorR = 200;
-                    if (t - redPhaseTime >= 500) {
+                    if (t - redPhaseTime >= 300) {
                         redPhase++;
+                        redPhaseStarted = false;
                     }
                     break;
                 case 1: // 後退
@@ -371,8 +385,9 @@ bool color_move(uint8_t detectedColor) {
                       redPhaseStarted = true;
                      }
                     motorL = motorR = -200;
-                    if (t - redPhaseTime >= 1500) {
+                    if (t - redPhaseTime >= 900) {
                         redPhase++;
+                        redPhaseStarted = false;
                     }
                     break;
                 case 2: // 回転
@@ -382,6 +397,7 @@ bool color_move(uint8_t detectedColor) {
                         redTargetAngle = redStartAngle + 180.0f;
                         if (redTargetAngle >= 360.0f) redTargetAngle -= 360.0f;
                         redPhaseStarted = true;
+                        rotateDir = 0;
                     }
                     Serial.print("回転[赤] angle=");
                     Serial.println(angle);
@@ -404,8 +420,9 @@ bool color_move(uint8_t detectedColor) {
                     }
                     Serial.println("前進[青]");
                     motorL = motorR = 200;
-                    if (t - bluePhaseTime >= 500) {
+                    if (t - bluePhaseTime >= 300) {
                         bluePhase++;
+                        bluePhaseStarted = false;
                     }
                     break;
                 case 1: // 後退
@@ -415,8 +432,9 @@ bool color_move(uint8_t detectedColor) {
                       bluePhaseStarted = true;
                      }
                     motorL = motorR = -200;
-                    if (t - bluePhaseTime >= 1500) {
+                    if (t - bluePhaseTime >= 900) {
                         bluePhase++;
+                        bluePhaseStarted = false;
                     }
                     break;
                 case 2: // 回転
@@ -426,6 +444,7 @@ bool color_move(uint8_t detectedColor) {
                         blueTargetAngle = blueStartAngle + 180.0f;
                         if (blueTargetAngle >= 360.0f) blueTargetAngle -= 360.0f;
                         bluePhaseStarted = true;
+                        rotateDir = 0;
                     }
                     Serial.print("回転[青] angle=");
                     Serial.println(angle);
@@ -455,10 +474,10 @@ int search()
   unsigned long timeNow1 = millis();
 
   if (timePrev1 == 0) timePrev1 = timeNow1;
-
   switch (searchMode)
   {
   case 0: // 直進
+  Serial.println("探索[直進]");
     motorL = motorR = 200;
       if (timeNow1 - timePrev1 > 1000)
       {
@@ -472,6 +491,7 @@ int search()
     }
     break;
   case 1: // 後退
+  Serial.println("探索[後退]");
     motorL = motorR = -200;
     if (timeNow1 - timePrev1 > 500)
     {
@@ -480,8 +500,9 @@ int search()
     }
     break;
   case 2: // 回転
-    motorR = 250;
-    motorL = -250;
+  Serial.println("探索[回転]");
+    motorR = -200;
+    motorL = 200;
     if (dist < 30&&dist!=0)
     {
       searchMode = 0;
