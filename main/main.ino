@@ -628,7 +628,7 @@ int ClassifyRole()
 { 
   if (230 < angle && angle < 320)
   {
-    return FORWARD;
+    return BACKWARD;
   }
   else if (angle >= 60 && angle < 130)
   {
@@ -636,7 +636,7 @@ int ClassifyRole()
   }
   else
   {
-    return FORWARD;
+    return CLIMB;
   }
   return role;
 }
