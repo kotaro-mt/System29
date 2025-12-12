@@ -109,13 +109,13 @@
 //       return 1; // 成功
 //     }
 //     break;
-      case 100:
-          speed =(-150);
-          timeNow_c=millis();
-          if(timeNow_c-timePrev_c>1000){
-            return 1;
-          
-        }
+//      case 100:
+//          speed =(-150);
+//          timeNow_c=millis();
+//          if(timeNow_c-timePrev_c>1000){
+//            return 1;
+//          
+//        }
 //   }
 
   

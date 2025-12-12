@@ -10,7 +10,7 @@ Pushbutton button(ZUMO_BUTTON);
 ZumoBuzzer buzzer;
 
 const int id=2; //processsing通信用
-int mode = 0;                    // 動作モード
+int mode = 0;   // 動作モード
 int climb_mode = 0;
 int motorL, motorR; // モーター速度
 float red,green,blue; // RGB値
@@ -192,7 +192,7 @@ void loop()
   case 1:
     // 敵陣ロボットの移動
     //place();
-    //forward_robot();
+    forward_robot();
     break;
 
   case 2:
@@ -264,12 +264,8 @@ void loop()
     // 未定義のmodeは安全停止
     motorL = motorR = 0;
     break;
-
-
-    motors.setLeftSpeed(motorL);
-    motors.setRightSpeed(motorR);
   }
-  
+
   motors.setLeftSpeed(motorL);
   motors.setRightSpeed(motorR);
 }
@@ -632,7 +628,7 @@ int ClassifyRole()
 { 
   if (230 < angle && angle < 320)
   {
-    return BACKWARD;
+    return FORWARD;
   }
   else if (angle >= 60 && angle < 130)
   {
@@ -640,7 +636,7 @@ int ClassifyRole()
   }
   else
   {
-    return CLIMB;
+    return FORWARD;
   }
   return role;
 }
