@@ -25,6 +25,7 @@ enum Role {FORWARD, BACKWARD,CLIMB}; // 役割の定義(敵陣,自陣,山)
 float x = 0.0, y = 0.0; // マップに対するXY座標(赤のラインの左側を原点とする)
 float ax = 0, ay = 0, az = 0; // 加速度センサーの値
 float goalAngle = 0.0f;// ゴール方向
+float avg_ax = 0;
 
 //=====================
 // 共通関数用変数
@@ -40,6 +41,8 @@ unsigned long c_time = 0;
 bool isColorAction = false;   // 色動作中フラグ
 int modeBeforeColor = 0;      // 色動作前の mode を保存
 
+// フラグ：goal 中に色割込みが入ったか
+bool fromGoal = false;
 // 黒フェーズ用
 int blackPhase = 0;
 unsigned long blackPhaseTime = 0;
@@ -95,11 +98,11 @@ void setup()
   button.waitForButton();
   goalAngle = angle = averageHeading(); // 向いている方角の取得(初期方角)
   role = ClassifyRole();                // ロール分類
-  //Serial.println(String(id) + "," + String(dist) + "," + String(angle) + "," + String(mode) + "," + String(color));
+  Serial.println(String(id) + "," + String(dist) + "," + String(angle) + "," + String(mode) + "," + String(color));
 
   // 目標方角の設定(各自設定する必要あり)
   // 目標方角の設定（修正：条件と演算を正しく）
-  if (role == FORWARD) {
+  /*if (role == FORWARD) {
     goalAngle += 90.0f;
     if (goalAngle >= 360.0f) goalAngle -= 360.0f;
   } else if (role == BACKWARD) {
@@ -108,7 +111,7 @@ void setup()
   } else if (role == CLIMB) {
     goalAngle -= 180.0f;
     if (goalAngle < 0.0f) goalAngle += 360.0f;
-  }
+  }*/
         
   // 初回送信時間の設定
   timePrev = millis();
@@ -132,6 +135,7 @@ void loop()
 
   getRGB(red, green, blue); // RGB値の取得
   getAcc(ax, ay, az);       // 加速度の取得
+  avg_ax = 0.9 * avg_ax + 0.1 * ax; // 低域通過フィルタ
 
   dist = distance();        // オブジェクトまでの距離の取得
   angle = averageHeading(); // 向いている方角の取得
@@ -159,19 +163,28 @@ void loop()
   case 0: // 初期化処理
     climb_mode=0;
     // place(); //位置情報の初期設定
-    Serial.println(role);
+    //Serial.println(role);
     // roleを文字列で表示
-    Serial.print("[ROLE] 現在の役割：");
+    //Serial.print("[ROLE] 現在の役割：");
     if(role == FORWARD){
       //Serial.println("FORWARD");
+      goalAngle += 90.0f;
+    if (goalAngle >= 360.0f)
+      goalAngle -= 360.0f;
       mode = 1;
     }
     else if(role == CLIMB){
       //Serial.println("CLIMB");
+      goalAngle -= 180.0f;
+    if (goalAngle < 0.0f)
+      goalAngle += 360.0f;
       mode = 2;
     }
     else{
       //Serial.println("BACKWARD");
+      goalAngle -= 90.0f;
+    if (goalAngle < 0.0f)
+      goalAngle += 360.0f;
       mode = 3;
     }
     break;
@@ -236,7 +249,13 @@ void loop()
         blackPhase = redPhase = bluePhase = 0;
         blackPhaseStarted = redPhaseStarted = bluePhaseStarted = false;
         rotateDir = 0; // 回転方向リセット    
-        mode = modeBeforeColor;  // 元モードに戻す
+        // goal 中に割り込まれていたら探索へ戻す
+        if (fromGoal) {
+          fromGoal = false;
+          mode = 3;
+        } else {
+          mode = modeBeforeColor;  // 元のモードに戻す
+        }
         }
     }
     break;
@@ -246,8 +265,7 @@ void loop()
     motorL = motorR = 0;
     break;
   }
-
-  // モーター出力の反映（各モードが motorL/motorR を設定する想定）
+  
   motors.setLeftSpeed(motorL);
   motors.setRightSpeed(motorR);
 }
@@ -256,40 +274,41 @@ void loop()
 // 共通関数群
 //===================
 
-// 角度回転専用関数（安定判定を追加）
+// 角度回転専用関数（安定判定付き）
+// targetAngle: 目標角度, tolerance: 許容誤差（度）
 bool rotateToAngle(float targetAngle, float tolerance)
 {
     float diff = relativeHeading(angle, targetAngle);
 
-    // 完了判定
+    // 到達判定
     if (fabs(diff) <= tolerance) {
         motorL = motorR = 0;
-        rotateDir = 0;
+        rotateDir = 0; // 回転方向リセット
         return true;
     }
 
-    // 1回決めた回転方向は絶対に変わらない
+    // 回転方向決定（初回のみ）
     if (rotateDir == 0) {
         rotateDir = (diff > 0.0f) ? 1 : -1;
     }
     int dir = rotateDir;
 
-    // P制御（減速つき）
+    // P制御（減速付き）
     const float Kp = 4.0f;
     int speed = fabs(diff) * Kp;
-    if (speed < 80) speed = 80;
+    if (speed < 100) speed = 100;
     if (speed > 250) speed = 250;
 
     // 実際の回転
-    if (dir > 0) {   // 左回り固定
+    if (dir > 0) {   // 左回り
         motorL = -speed;
         motorR =  speed;
-    } else {         // 右回り固定
+    } else {         // 右回り
         motorL =  speed;
         motorR = -speed;
     }
 
-    return false;
+    return false; // まだ到達していない
 }
 
 // 色処理
@@ -310,7 +329,7 @@ bool color_move(uint8_t detectedColor) {
                     //Serial.println("後退[黒]");
                     motorL = motorR = -200;
 
-                    if (t - blackPhaseTime >= 600) {
+                    if (t - blackPhaseTime >= 400) {
                         blackPhase++;
                         blackPhaseStarted = false;  // 次のフェーズ用に必ずリセット
                     }
@@ -351,8 +370,9 @@ bool color_move(uint8_t detectedColor) {
                     }
                     //Serial.println("前進[赤]");
                     motorL = motorR = 200;
-                    if (t - redPhaseTime >= 500) {
+                    if (t - redPhaseTime >= 300) {
                         redPhase++;
+                        redPhaseStarted = false;
                     }
                     break;
                 case 1: // 後退
@@ -362,8 +382,9 @@ bool color_move(uint8_t detectedColor) {
                       redPhaseStarted = true;
                      }
                     motorL = motorR = -200;
-                    if (t - redPhaseTime >= 1500) {
+                    if (t - redPhaseTime >= 900) {
                         redPhase++;
+                        redPhaseStarted = false;
                     }
                     break;
                 case 2: // 回転
@@ -373,6 +394,7 @@ bool color_move(uint8_t detectedColor) {
                         redTargetAngle = redStartAngle + 180.0f;
                         if (redTargetAngle >= 360.0f) redTargetAngle -= 360.0f;
                         redPhaseStarted = true;
+                        rotateDir = 0;
                     }
                     //Serial.print("回転[赤] angle=");
                     //Serial.println(angle);
@@ -395,8 +417,9 @@ bool color_move(uint8_t detectedColor) {
                     }
                     //Serial.println("前進[青]");
                     motorL = motorR = 200;
-                    if (t - bluePhaseTime >= 500) {
+                    if (t - bluePhaseTime >= 300) {
                         bluePhase++;
+                        bluePhaseStarted = false;
                     }
                     break;
                 case 1: // 後退
@@ -406,8 +429,9 @@ bool color_move(uint8_t detectedColor) {
                       bluePhaseStarted = true;
                      }
                     motorL = motorR = -200;
-                    if (t - bluePhaseTime >= 1500) {
+                    if (t - bluePhaseTime >= 900) {
                         bluePhase++;
+                        bluePhaseStarted = false;
                     }
                     break;
                 case 2: // 回転
@@ -417,8 +441,9 @@ bool color_move(uint8_t detectedColor) {
                         blueTargetAngle = blueStartAngle + 180.0f;
                         if (blueTargetAngle >= 360.0f) blueTargetAngle -= 360.0f;
                         bluePhaseStarted = true;
+                        rotateDir = 0;
                     }
-                    Serial.print("回転[青] angle=");
+                    //Serial.print("回転[青] angle=");
                     //Serial.println(angle);
                     if (rotateToAngle(blueTargetAngle, 5.0f)) {
                         bluePhase = 0;
@@ -446,12 +471,12 @@ int search()
   unsigned long timeNow1 = millis();
 
   if (timePrev1 == 0) timePrev1 = timeNow1;
-
   switch (searchMode)
   {
   case 0: // 直進
+  //Serial.println("探索[直進]");
     motorL = motorR = 200;
-      if (timeNow1 - timePrev1 > 1000)
+      if (timeNow1 - timePrev1 > 1500)
       {
         timePrev1 = timeNow1;
         searchMode = 2;
@@ -461,18 +486,24 @@ int search()
       timePrev1 = timeNow1;
       searchMode = 1;
     }
+    if(avg_ax>5000){ //段差検知
+      timePrev1 = timeNow1;
+      searchMode = 1;
+    }
     break;
   case 1: // 後退
+  //Serial.println("探索[後退]");
     motorL = motorR = -200;
     if (timeNow1 - timePrev1 > 500)
     {
       timePrev1 = timeNow1;
-      searchMode = 0;
+      searchMode = 2;
     }
     break;
   case 2: // 回転
-    motorR = 250;
-    motorL = -250;
+  //Serial.println("探索[回転]");
+    motorR = -200;
+    motorL = 200;
     if (dist < 30&&dist!=0)
     {
       searchMode = 0;
@@ -562,18 +593,31 @@ bool Check(int currentDist, unsigned long &checkStartTime, int &prevDist, int &c
 int goal()
 { // ゴールに運ぶ
   static int goalMode = 0;
+  static unsigned long timePrev_g=0;
+  static unsigned long timeNow_g=0;
   switch (goalMode)
   {
   case 0: // 回転
-    motorL = 150;
-    motorR = -150;
+    motorL = 180;
+    motorR = -180;
     if (relativeHeading(angle, goalAngle) < 5.0 && relativeHeading(angle, goalAngle) > -5.0) // 目標方角に到達
       goalMode = 1;
     break;
 
   case 1: // 前進
     motorL = motorR = 200;
-    goalMode = 0;
+    if(color==RED||color==BLUE){
+      goalMode = 2;
+      timePrev_g=millis();
+    }
+    break;
+  case 2:
+    motorR=motorL=-200;
+    timeNow_g=millis();
+    if(timeNow_g-timePrev_g>1000){
+      goalMode=0;
+      return 1;
+    }
     break;
   }
   return 0;
@@ -601,36 +645,37 @@ int ClassifyRole()
 // 再初期化関数：ボタン押下時に呼ぶ（キャリブレーションも行う）
 void reinitializeAll()
 {
-  // 即時モーター停止
-  motorL = 0;
-  motorR = 0;
-  motors.setLeftSpeed(0);
-  motors.setRightSpeed(0);
+  // // 即時モーター停止
+  // motorL = 0;
+  // motorR = 0;
+  // motors.setLeftSpeed(0);
+  // motors.setRightSpeed(0);
 
-  Serial.println("[INFO] reinitializeAll: モーター停止センサの状態をリセット");
+  // Serial.println("[INFO] reinitializeAll: モーター停止センサの状態をリセット");
 
-  // センサー類の再セットアップ（ハード初期化）
-  initWaveSensor();
-  setupCompass();
+  // // センサー類の再セットアップ（ハード初期化）
+  // initWaveSensor();
+  // setupCompass();
 
-  // 状態変数リセット
-  dist = 0;
-  angle = 0;
-  color = 0;
-  role = -1;
-  mode=0;
-  timePrev = millis();
+  // // 状態変数リセット
+  // dist = 0;
+  // angle = 0;
+  // color = 0;
+  // role = -1;
+  // mode=0;
+  // timePrev = millis();
 
-  // カラーセンサーのキャリブレーション
-  button.waitForButton();
-  CalibrationColorSensor();
+  // // カラーセンサーのキャリブレーション
+  // button.waitForButton();
+  // CalibrationColorSensor();
 
-  // 地磁気センサのキャリブレーション
-  button.waitForButton();
-  calibrationCompass();
+  // // 地磁気センサのキャリブレーション
+  // button.waitForButton();
+  // calibrationCompass();
 
-  // 最初に向いている方向を取得
-  button.waitForButton();
-  angle = averageHeading(); // 向いている方角の取得
-  role = ClassifyRole();
+  // // 最初に向いている方向を取得
+  // button.waitForButton();
+  // angle = averageHeading(); // 向いている方角の取得
+  // role = ClassifyRole();
+  mode=3;
 }

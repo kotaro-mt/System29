@@ -180,13 +180,13 @@ void forward_robot() {
  if (role == FORWARD) {
    switch (f_mode) {
      case 101: // 敵陣まで移動：赤陣地の場合
-       Serial.println(f_mode);
+       //Serial.println(f_mode);
        f_angle = angle; // 最初の方向を記録
        f_mode = 0;
        break;
    
      case 0:
-       Serial.println(f_mode);
+       //Serial.println(f_mode);
        if (180 < angle && angle < 210) { //敵陣方向に回転
          f_mode = 1;
          f_time = millis();
@@ -197,7 +197,7 @@ void forward_robot() {
        break;
 
      case 1: // 敵陣まで直進
-       Serial.println(f_mode);
+       //Serial.println(f_mode);
        motorR = 320;
        motorL = 300;
        if(4000 < millis() - f_time && millis() - f_time < 4500 ) { // 秒経過したら探索へ移行
@@ -210,7 +210,7 @@ void forward_robot() {
        break;
 
      case 2: // 探索-回転
-       Serial.println(f_mode);
+       //Serial.println(f_mode);
        if (millis() - f_time >= 1500) { // 1.5秒経過したら再直進
          f_mode = 3; // 探索-直進
          b_time = millis();
@@ -230,7 +230,7 @@ void forward_robot() {
        break;
 
      case 3: // 探索-直進
-       Serial.println(f_mode);
+       //Serial.println(f_mode);
        motorR = 400;
        motorL = 400;
          if (millis() - f_time >= 1000) { // 1秒後に探索へ
@@ -245,7 +245,7 @@ void forward_robot() {
        break;
      
      case 4: // CHECK 静止反転
-       Serial.println(f_mode);
+       //Serial.println(f_mode);
        if (Check(dist, checkStartTime, prevDist, changeCount, 500, 3)) {
          f_mode = 5;
          f_time = millis();
@@ -256,7 +256,7 @@ void forward_robot() {
        break;
 
      case 5: // キャッチ
-       Serial.println(f_mode);
+       //Serial.println(f_mode);
          motorL = 300;
          motorR = 300;
          if (dist <= 5) {
@@ -267,7 +267,7 @@ void forward_robot() {
          break;
      
      case 6: //運搬-回転
-       Serial.println(f_mode);
+       //Serial.println(f_mode);
        if (80 < angle && angle < 100) { // 黒の壁を向いたら直進
          motorR = 200; motorL = 217;
          if (color == BLACK) { // 黒を認識したら
@@ -280,13 +280,13 @@ void forward_robot() {
        break;
 
      case 99: // 色による判定
-       Serial.println(f_mode);
+       //Serial.println(f_mode);
        //color_move(color, f_time);
        motorR = motorL = 0;
        break;
 
      case 100: // 投げるor押し出し
-       Serial.println(f_mode);
+       //Serial.println(f_mode);
        if(millis() - f_time < 200) { // 押し出し直進
          motorR = 400; motorL = 400;
        } else if (200 <= millis() - f_time && millis() - f_time < 1200){
