@@ -264,6 +264,10 @@ void loop()
     // 未定義のmodeは安全停止
     motorL = motorR = 0;
     break;
+
+
+    motors.setLeftSpeed(motorL);
+    motors.setRightSpeed(motorR);
   }
   
   motors.setLeftSpeed(motorL);

@@ -17,7 +17,13 @@ int colorValue[COLORNUM][3] = {
    {10, 30, 70}    // 青色の値
  };*/
 
-
+// 井元
+/*int colorValue[COLORNUM][3] = {
+  {237, 255, 227},   // 白色の値
+  {23, 30, 0}, //黒色の値
+  {140, 50, 28},   // 赤色の値
+  {36, 66, 83}    // 青色の値
+};*/
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_60X);
 
 unsigned int r_min, g_min, b_min; 
