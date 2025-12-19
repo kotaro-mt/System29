@@ -323,20 +323,20 @@ int catchObject()
         timePrev2 = timeNow2;
         // 敵機でない（ほぼ静止）なら接近モードへ、そうでなければ敵判定
         if (fabs(avgDist - (float)dist) < 3.0f) {
-          catchMode = 1;
+          catchMode = 2;
         } else {
           return 2; // 敵機判定（失敗）
         }
       }
       break;
 
-    case 1:
+    /*case 1:
       motorL = motorR = -200;
       if (timeNow2 - timePrev2 > 300) {
         timePrev2 = timeNow2;
         catchMode = 2;
       }
-      break;
+      break;*/
 
     case 2: // 接近して保持
     //Serial.print("接近中");
