@@ -10,17 +10,19 @@ String string2 = null;
 String string3 = null;
 
 // 受信した色データなどを格納する配列
-float[] data1 = new float[3];
-float[] data2 = new float[3];
-float[] data3 = new float[3];
+float[] data1 = new float[7];
+float[] data2 = new float[7];
+float[] data3 = new float[7];
 
 int dist1,dist2,dist3;
 float angle1,angle2,angle3;
 int mode1,mode2,mode3;
 int col1,col2,col3;
+int pitch1,pitch2,pitch3;
+int score = 0;
 
 int f_time;
-float f = 1, map_f = 1.8, map_robot_f = 0.1; // 縮尺系
+float f = 0.5, map_f = 1.8, map_robot_f = 0.1; // 縮尺系
 float robot1_x = 100, robot1_y = 100;
 
   //左上を１右上を２左下を３右下を４としている
@@ -35,6 +37,10 @@ int LF=10;
 
 void setup(){
   size(1000,700); //幅1200px,高さ800pxのウインドウを生成
+  
+  // 日本語フォントの設定
+  PFont font = createFont("MS Gothic", 24);
+  textFont(font);
   
   try {
     port1=new Serial(this, "COM4", 9600); 
@@ -66,10 +72,18 @@ void draw(){
   if (string1 != null) {
      fill(255);
      text("Zumo1: " + string1, 10, 20);
-     dist1 = int(data1[0]);
-     angle1 = data1[1];
-     mode1 = int(data1[2]);
-     col1 = int(data1[3]);
+     if (data1.length >= 4) {
+       dist1 = int(data1[0]);
+       angle1 = data1[1];
+       int m = int(data1[2]);
+       if (m == 5 && mode1 != 5) score++;
+       mode1 = m;
+       col1 = int(data1[3]);
+     }
+     if (data1.length >= 7) {
+       // ピッチ角の計算 (単位: 度)
+       pitch1 = int(degrees(atan2(data1[4], sqrt(sq(data1[5]) + sq(data1[6])))));
+     }
      // println("Zumo1: " + string1);
      if (port1 != null) port1.write('H'); // 一方的送信モードなら不要
   }
@@ -79,19 +93,33 @@ void draw(){
      fill(255);
      text("Zumo2: " + string2, 10, 40); // Y座標をずらす
      // println("Zumo2: " + string2);
-     dist2 = int(data2[0]);
-     angle2 = data2[1];
-     mode2 = int(data2[2]);
-     col2 = int(data2[3]);
+     if (data2.length >= 4) {
+       dist2 = int(data2[0]);
+       angle2 = data2[1];
+       int m = int(data2[2]);
+       if (m == 5 && mode2 != 5) score++;
+       mode2 = m;
+       col2 = int(data2[3]);
+     }
+     if (data2.length >= 7) {
+       pitch2 = int(degrees(atan2(data2[4], sqrt(sq(data2[5]) + sq(data2[6])))));
+     }
      if (port2 != null) port2.write('H'); // 一方的送信モードなら不要
   }
   if (string3 != null) {
      fill(255);
      text("Zumo3: " + string3, 10, 70); // Y座標をずらす
-      dist3 = int(data3[0]);
-      angle3 = data3[1];
-      mode3 = int(data3[2]);
-      col3 = int(data3[3]);
+      if (data3.length >= 4) {
+        dist3 = int(data3[0]);
+        angle3 = data3[1];
+        int m = int(data3[2]);
+        if (m == 5 && mode3 != 5) score++;
+        mode3 = m;
+        col3 = int(data3[3]);
+      }
+      if (data3.length >= 7) {
+        pitch3 = int(degrees(atan2(data3[4], sqrt(sq(data3[5]) + sq(data3[6])))));
+      }
      // println("Zumo2: " + string2);
      if (port3 != null) port3.write('H'); // 一方的送信モードなら不要
   }
@@ -106,11 +134,25 @@ void draw(){
   
   background(0);
   window_squ(); // 画面を4分割
-  draw_robot(325, 175, angle1, f); // ロボット1の回転の中心点(325, 175)とする
-  draw_robot(325 + width / 2, 175, angle2, f); // ロボット2の回転の中心点(325, 175)とする
-  draw_robot(325, 175 + height / 2, angle3, f); // ロボット3の回転の中心点(325, 175)とする
+  
+  // 上面図（向き）
+  draw_robot(325, 100, angle1, f); 
+  draw_robot(325 + width / 2, 100, angle2, f); 
+  draw_robot(325, 100 + height / 2, angle3, f); 
+  
+  // 側面図（傾き）
+  // pitch1 = 30;
+  // pitch2 = -20;
+  // pitch3 = 10;
+
+  draw_side_view(325, 270, pitch1, f);
+  draw_side_view(325 + width / 2, 270, pitch2, f);
+  draw_side_view(325, 270 + height / 2, pitch3, f);
+
   map_draw(width / 2, height / 2, map_f);
   Text(20, 30);
+  
+  drawScore();
   
   // 回転確認用
   if (millis() - f_time > 10) {
@@ -185,6 +227,7 @@ void window_squ() {
   line(0, height / 2, width, height / 2);
   noFill();
 }
+
 void draw_robot(float x, float y, float angle, float f) {
   strokeWeight(1);
   // zumorobotの周りの円
@@ -267,27 +310,61 @@ void Text(float x, float y) {
   fill(255, 255, 255); // 文字の色
   
   // robot1のテキスト
+  textSize(32);
   text("robot1", x, y);
-  text("mode = " + mode1, x, y + 30);
-  text("dist = " + dist1, x, y + 60);
-  text("angle = " + angle1, x, y + 90);
-  text("color = " + col1, x, y + 120);
+  stroke(255); strokeWeight(2); // 下線
+  line(x, y + 5, x + textWidth("robot1"), y + 5);
+
+  textSize(24);
+  text("mode = " + mode1, x+20, y + 40);
+  text(getModeName(mode1), x+20, y + 70);
+  text("dist = " + dist1, x+20, y + 110);
+  text("angle = " + angle1, x+20, y + 140);
+  text("color = " + col1, x+20, y + 170);
+  text("pitch = " + pitch1, x+20, y + 200);
   
   // robot2のテキスト
+  textSize(32);
   text("robot2", width / 2 + x, y);
-  text("mode = " + mode2, width / 2 + x, y + 30);
-  text("dist = " + dist2, width / 2 + x, y + 60);
-  text("angle = " + angle2, width / 2 + x, y + 90);
-  text("color = " + col2, width / 2 + x, y + 120);
+  stroke(255); strokeWeight(2); // 下線
+  line(width / 2 + x, y + 5, width / 2 + x + textWidth("robot2"), y + 5);
+
+  textSize(24);
+  text("mode = " + mode2, x+20+ width / 2, y + 40);
+  text(getModeName(mode2), x+20+ width / 2, y + 70);
+  text("dist = " + dist2, x+20+ width / 2, y + 110);
+  text("angle = " + angle2, x+20+ width / 2, y + 140);
+  text("color = " + col2, x+20+ width / 2, y + 170);
+  text("pitch = " + pitch2, x+20+ width / 2, y + 200);
   
   // robot3のテキスト
+  textSize(32);
   text("robot3", x, height / 2 + y);
-  text("mode = " + mode3, x, height / 2 + y + 30);
-  text("dist = " + dist3, x, height / 2 + y + 60);
-  text("angle = " + angle3, x, height / 2 + y + 90);
-  text("color = " + col1, x, height / 2 + y + 120);
+  stroke(255); strokeWeight(2); // 下線
+  line(x, height / 2 + y + 5, x + textWidth("robot3"), height / 2 + y + 5);
+
+  textSize(24);
+  text("mode = " + mode3, x+20, y + 40+ height / 2);
+  text(getModeName(mode3), x+20, y + 70+ height / 2);
+  text("dist = " + dist3, x+20, y + 110+ height / 2);
+  text("angle = " + angle3, x+20, y + 140+ height / 2);
+  text("color = " + col3, x+20, y + 170+ height / 2);
+  text("pitch = " + pitch3, x+20, y + 200+ height / 2);
   
   noFill(); // 色の初期化
+}
+
+String getModeName(int m) {
+  switch(m) {
+    case 0: return "(初期化中)";
+    case 1: return "(敵陣移動中)";
+    case 2: return "(山登り中)";
+    case 3: return "(探索中)";
+    case 4: return "(接近・取得中)";
+    case 5: return "(ゴールに運搬中)";
+    case 6: return "(緊急停止中)";
+    default: return "(待機中)";
+  }
 }
 
 void map_draw(float x, float y, float f) {
@@ -317,4 +394,67 @@ void map_draw(float x, float y, float f) {
 }
 
 void north(float x, float y, float angle, float f) {
+}
+
+void draw_side_view(float x, float y, float pitch, float f) {
+  pushMatrix();
+  translate(x, y);
+  
+  // 基準線（水平線）
+  stroke(100);
+  strokeWeight(1);
+  line(-100 * f, 0, 100 * f, 0);
+  
+  // ピッチ角だけ回転
+  // 機首（右側）が上がる＝反時計回り＝マイナス
+  rotate(radians(-pitch)); 
+  
+  scale(f * 2.0); // 縮尺適用（大きく表示）
+  
+  noFill();
+  stroke(255);
+  strokeWeight(2);
+  
+  // 本体（側面）
+  rectMode(CENTER);
+  fill(32, 178, 170); // 本体色
+  rect(0, -30, 80, 40); // 本体
+  
+  // キャタピラ
+  fill(112, 128, 144); // キャタピラ色
+  rect(0, 0, 100, 20); // キャタピラ全体
+  
+  // ブレード（前＝右側）
+  fill(248, 180, 0); // ブレード色
+  beginShape();
+  vertex(40, -40); // 上に移動
+  vertex(70, -20);
+  vertex(40, -20);
+  endShape(CLOSE);
+  
+  // 車輪（装飾）
+  fill(0);
+  ellipse(-35, 5, 15, 15);
+  ellipse(35, 5, 15, 15);
+  ellipse(0, 5, 15, 15);
+  
+  noFill();
+  popMatrix();
+}
+
+void drawScore() {
+  pushStyle();
+  fill(255);
+  textAlign(CENTER, CENTER);
+  
+  float cx = width * 3.0 / 4.0;
+  float cy = height * 3.0 / 4.0-50;
+  
+  textSize(40);
+  text("Total Score", cx, cy - 40);
+  
+  textSize(100);
+  text(score, cx, cy + 40);
+  
+  popStyle();
 }
