@@ -2,20 +2,20 @@
 
 #define COLORNUM 4 // 判定する色の数
 // 松永
-int colorValue[COLORNUM][3] = {
+/*int colorValue[COLORNUM][3] = {
   {255, 255, 255},   // 白色の値
   {0,0,0}, //黒色の値
   {120, 30, 31},   // 赤色の値
   {20, 40, 80}    // 青色の値
-};
+};*/
 
 // 喜多
-/* int colorValue[COLORNUM][3] = {
-   {255, 255, 255},   // 白色の値
+int colorValue[COLORNUM][3] = {
+   {225, 255, 225},   // 白色の値
    {0,0,0}, //黒色の値
    {122, 22, 26},   // 赤色の値
    {10, 30, 70}    // 青色の値
- };*/
+ };
 
 // 井元
 /*int colorValue[COLORNUM][3] = {
