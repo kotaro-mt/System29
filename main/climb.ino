@@ -109,7 +109,6 @@
 //       return 1; // 成功
 //     }
 //     break;
-<<<<<<< HEAD
 //      case 100:
 //          speed =(-150);
 //          timeNow_c=millis();
@@ -118,7 +117,6 @@
 //          
 //        }
 //   }
-=======
 /*      case 100:
           speed =(-150);
           timeNow_c=millis();
@@ -127,7 +125,6 @@
           
         }
 *///   }
->>>>>>> 5e677dd55fa6eb6917a39250458733b6c705a677
 
   
   // if(color!=WHITE){

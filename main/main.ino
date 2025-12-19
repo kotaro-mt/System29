@@ -88,20 +88,6 @@ void loop()
   if (digitalRead(ZUMO_BUTTON) == LOW)
   { // 押された
     delay(40);
-    if (digi
-  timePrev = millis();
-
-  // ボタン入力をプルアップで有効化（Zumo ボタンが LOW 押下の想定）
-  pinMode(ZUMO_BUTTON, INPUT_PULLUP);
-}
-
-void loop()
-{
-
-  // ボタン押下で初期化処理
-  if (digitalRead(ZUMO_BUTTON) == LOW)
-  { // 押された
-    delay(40);
     if (digitalRead(ZUMO_BUTTON) == LOW)
     {
       reinitializeAll();
@@ -113,6 +99,7 @@ void loop()
   avg_ax = 0.9 * avg_ax + 0.1 * ax; // 低域通過フィルタ
 
   dist = distance();        // オブジェクトまでの距離の取得
+  Serial.println(dist);
   angle = averageHeading(); // 向いている方角の取得
   color = classifyColor();  // 色の分類
 
@@ -229,7 +216,6 @@ int search()
   switch (searchMode)
   {
   case 0://直進
-  Serial.println("0");
     motorL = motorR = 200;
       if (timeNow1 - timePrev1 > 1000)
       {
@@ -238,7 +224,6 @@ int search()
       }
       break;
   case 1://回転
-  Serial.println("1");
     motorR = -180;
     motorL = 180;
     if (dist < 50&&dist!=0)
@@ -254,7 +239,6 @@ int search()
     break;
   
   case 2: // 直進
-  Serial.println("探索[直進]");
     motorL = motorR = 200;
     if (timeNow1 - timePrev1 > 1700)
       {
@@ -271,8 +255,8 @@ int search()
       searchMode = 3;
     }
     break;
+    
   case 3: // 後退
-  Serial.println("探索[後退]");
     motorL = motorR = -200;
     if (timeNow1 - timePrev1 > 1000)
     {
@@ -286,7 +270,6 @@ int search()
     }
     break;
   case 4: // 回転
-  Serial.println("探索[回転]");
     motorR = -180;
     motorL = 180;
     if (dist < 50&&dist!=0)
@@ -301,7 +284,6 @@ int search()
     }
     break;
   case 5:// 黒赤青
-  Serial.println("クロちゃんですアワワワー");
   motorL = motorR = -200;
   if (timeNow1 - timePrev1 > 500)
     {
@@ -310,7 +292,6 @@ int search()
     }
     break;
   case 6://黒赤青
-  Serial.println("超クロちゃんですアワワワー");
   motorL = 200;
   motorR = -200;
   if (timeNow1 - timePrev1 > 600)
@@ -349,47 +330,26 @@ int catchObject()
       }
       break;
 
-    case 1: // 接近して保持
-    //Serial.print("接近中");
-    Serial.println(dist);
-      motorL = motobool isColorAction = false;   // 色動作中フラグ
-int modeBeforeColor = 0;      // 色動作前の mode を保存
-
-// フラグ：goal 中に色割込みが入ったか
-bool fromGoal = false;
-// 黒フェーズ用
-int blackPhase = 0;
-unsigned long blackPhaseTime = 0;
-bool blackPhaseStarted = false;
-float blackStartAngle = 0.0f;     // 黒検出時の角度固定
-float blackTargetAngle = 0.0f;
-
-// 赤フェーズ用
-int redPhase = 0;
-unsigned long redPhaseTime = 0;
-bool redPhaseStarted = false;
-float redStartAngle = 0.0f;     // 黒検出時の角度固定
-float redTargetAngle = 0.0f;
-
-// 青フェーズ用
-int bluePhase = 0;
-unsigned long bluePhaseTime = 0;
-bool bluePhaseStarted = false;
-float blueStartAngle = 0.0f;     // 黒検出時の角度固定
-float blueTargetAngle = 0.0f;
-
-// 回転方向保持（1＝左,-1＝右）
-int rotateDir = 0;rR = 150;
-      if (dist < 5 && dist != 0) {
+    case 1:
+      motorL = motorR = -200;
+      if (timeNow2 - timePrev2 > 300) {
+        timePrev2 = timeNow2;
         catchMode = 2;
       }
-      else if(dist > 50){
+      break;
+
+    case 2: // 接近して保持
+    //Serial.print("接近中");
+      if (dist < 5 && dist != 0) {
+        catchMode = 3;
+      }
+      else if(dist > 80){
         return 2; // 見失う
       }
       break;
 
-    case 2: // 完了
-    Serial.println("終了");
+    case 3: // 完了
+    //Serial.println("終了");
       motorL = motorR = 0;
       catchMode = 0;
       return 1;
@@ -480,7 +440,7 @@ int ClassifyRole()
 
 
 // 再初期化関数：ボタン押下時に呼ぶ（キャリブレーションも行う）
-void reinitializeAll()
+/*void reinitializeAll()
 {
   // // 即時モーター停止
   // motorL = 0;
@@ -515,4 +475,28 @@ void reinitializeAll()
   // angle = averageHeading(); // 向いている方角の取得
   // role = ClassifyRole();
   mode=3;
+}*/
+void reinitializeAll()
+{
+  motorL = motorR = 0;
+  motors.setLeftSpeed(0);
+  motors.setRightSpeed(0);
+
+  // 状態変数リセット
+  mode = 0;
+  climb_mode = 0;
+  avg_ax = 0;
+
+  // 時間リセット
+  timePrev = millis();
+
+  // 角度再取得
+  float sum = 0.0f;
+  for (int i = 0; i < 10; i++) {
+    sum += averageHeading();
+    delay(5);
+  }
+  angle = sum / 10.0f;
+
+  role = ClassifyRole();
 }
