@@ -27,6 +27,13 @@ float ax = 0, ay = 0, az = 0; // 加速度センサーの値
 float goalAngle = 0.0f;// ゴール方向
 float avg_ax = 0;
 
+//　敵陣ロボ用
+unsigned long f_time;
+float f_angle;
+int f_mode = 101;
+int erea;
+int cup_count = 0;
+
 //=====================
 // 共通関数用変数
 //=====================
@@ -141,8 +148,7 @@ void loop()
     
   case 1:
     // 敵陣ロボットの移動
-    //place();
-    //forward_robot();
+    forward_robot();
     break;
 
   case 2:
@@ -153,31 +159,41 @@ void loop()
 
   case 3:
     //Serial.println("探索");
-    // 探索モード
-    if(search())
-      mode=4;
+    if(role != FORWARD) {
+      if(search()) mode=4;
+    } else {
+      forward_robot();
+    }
     break;
 
   case 4:
     //Serial.println("接近・取得");
     // 宝物を見つけて取りに行く
-    if (catchObject() == 1)
-    {
-      //Serial.println("取得完了");
-      mode = 5;
-    }
-    else if (catchObject() == 2)
-    {
-      //Serial.println("喪失");
-      mode = 3;
+    if(role != FORWARD) {
+      if (catchObject() == 1)
+      {
+        //Serial.println("取得完了");
+        mode = 5;
+      }
+      else if (catchObject() == 2)
+      {
+        //Serial.println("喪失");
+        mode = 3;
+      }
+    } else {
+      forward_robot();
     }
     break;
       
   case 5:
     //Serial.println("運搬中");
     // ゴールに運ぶ
-    if(goal()){
-      mode=3;
+    if (role != FORWARD) {
+      if(goal()){
+        mode=3;
+      } 
+    } else {
+      forward_robot();
     }
   
     break;

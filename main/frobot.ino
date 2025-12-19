@@ -1,12 +1,6 @@
 // // motorR = 200
 // //motorL = 217
 
-unsigned long f_time;
-float f_angle;
-int f_mode = 101;
-int erea;
-int cup_count = 0;
-
 void forward_robot() {
 // 敵陣用ロボのロール
  if (role == FORWARD) {
@@ -15,6 +9,7 @@ void forward_robot() {
        //Serial.println(f_mode);
        f_angle = angle; // 最初の方向を記録
        f_mode = 0;
+       mode = 3;
        break;
 
      // 自陣が青の場合
@@ -46,6 +41,7 @@ void forward_robot() {
        if(millis() - f_time > 2700) { // 秒経過したら探索へ移行
         f_mode = 2;
         f_time = millis();
+        mode = 3;
        }
        if (color == BLACK || color == BLUE || color == RED) {
         //f_mode = 99; // 色判定
@@ -81,6 +77,7 @@ void forward_robot() {
          if (millis() - f_time >= 2000) { // 1秒後に探索へ
            f_mode = 2;
            f_time = millis();
+           mode = 3;
          }
 
          if (color == BLACK || color == RED || color == BLUE) {
@@ -95,9 +92,11 @@ void forward_robot() {
        if (Check(dist, checkStartTime, prevDist, changeCount, 500, 3)) {
          f_mode = 5;
          f_time = millis();
+         mode = 4;
        } else if (millis() - checkStartTime >= 500) {
          f_mode = 2;
          f_time = millis();
+         mode = 3;
        }
        break;
 
@@ -109,6 +108,7 @@ void forward_robot() {
            f_mode = 6; // 運搬
            f_angle = angle; // 角度を記録（どっちの壁に運ぶのが楽か算出するため）
            f_time = millis();
+           mode = 5;
          }
 
          if (cup_count == 2) {
@@ -128,6 +128,7 @@ void forward_robot() {
        //Serial.println(f_mode);
        if (dist > 10) { // オブジェクトが離れたら再探索
         f_mode = 2;
+        mode = 3;
        }
        
        if (80 < angle && angle < 100) { // 黒の壁を向いたら直進
@@ -163,7 +164,8 @@ void forward_robot() {
        } else {
          if (60 < abs(angle - f_angle)) {
            f_mode = 3; // 探索-直進へ移行
-           cup_count++;
+           mode = 3;
+           cup_count++; //カップ数に関係
          } else { // 適当に回転
            motorR = -400;
            motorL = 400;
