@@ -115,7 +115,10 @@ void loop()
   timeNow = millis();
 
   // ハンドシェイク通信のため、常時sendDataを呼び出す（sendData内で受信待ちを行う）
-  sendData();
+  if(timeNow-timePrev>50){
+    sendData();
+    timePrev=timeNow;
+  }
 
   switch (mode)
   {
@@ -253,24 +256,25 @@ int search()
     motorL = 180;
     if (dist < 40&&dist!=0)
     { 
-      if(distPrev!=0&&dist>distPrev){
-        distPrev=0;
-        searchMode = 2;
-        return 1;
-      }
+      // if(distPrev!=0&&dist>distPrev){
+      //   distPrev=0;
+      //   searchMode = 2;
+      //   return 1;
+      // }
       distPrev = dist;
-      
+      return 1;
     }
-    if (timeNow1 - timePrev1 > 300)
+    if (timeNow1 - timePrev1 > 1200+random(600))
     {
       timePrev1 = timeNow1;
       searchMode = 2;
+      delay(50);
     }
     break;
   
   case 2: // 直進
     motorL = motorR = 200;
-    if (timeNow1 - timePrev1 > 1700)
+    if (timeNow1 - timePrev1 > 1200)
       {
         timePrev1 = timeNow1;
         searchMode = 4;
@@ -304,18 +308,19 @@ int search()
     motorL = 180;
     if (dist < 40&&dist!=0)
     {
-      if(distPrev!=0&&dist>distPrev){
-        distPrev=0;
-        searchMode = 2;
-        return 1;
-      }
-      distPrev = dist;
+      // if(distPrev!=0&&dist>distPrev){
+      //   distPrev=0;
+      //   searchMode = 2;
+      //   return 1;
+      // }
       return 1;
+      distPrev = dist;
     }
-    if (timeNow1 - timePrev1 > 573)
+    if (timeNow1 - timePrev1 > 1400+random(500))
     {
       timePrev1 = timeNow1;
       searchMode = 2;
+      delay(50);
     }
     break;
   case 5:// 黒赤青
@@ -343,9 +348,10 @@ int catchObject()
 { // 宝物を見つけて取りに行く　0:継続 1:完了 2:失敗（敵機感知）
   static int catchMode = 0;
   static unsigned long timePrev2 = 0;
-  unsigned long timeNow2 = millis();
+  unsigned long timeNow2=0;
   static float avgDist = 0.0f;
 
+  timeNow2 = millis();
   if (timePrev2 == 0) timePrev2 = timeNow2;
 
   switch (catchMode)
@@ -357,11 +363,12 @@ int catchObject()
       if (timeNow2 - timePrev2 > 1000) {
         timePrev2 = timeNow2;
         // 敵機でない（ほぼ静止）なら接近モードへ、そうでなければ敵判定
-        if (fabs(avgDist - (float)dist) < 3.0f) {
-          catchMode = 2;
-        } else {
-          return 2; // 敵機判定（失敗）
-        }
+        catchMode = 2;
+        // if (fabs(avgDist - (float)dist) < 3.0f) {
+          
+        // } else {
+        //   return 2; // 敵機判定（失敗）
+        // }
       }
       break;
 
@@ -375,10 +382,13 @@ int catchObject()
 
     case 2: // 接近して保持
     //Serial.print("接近中");
+      motorL = motorR = 120;
       if (dist < 5 && dist != 0) {
         catchMode = 3;
       }
-      else if(dist > 80){
+      else if(dist > 50) {
+        catchMode=0;
+        timePrev2 = 0;
         return 2; // 見失う
       }
       break;
@@ -387,6 +397,7 @@ int catchObject()
     //Serial.println("終了");
       motorL = motorR = 0;
       catchMode = 0;
+      timePrev2 = 0;
       return 1;
   }
   return 0;
@@ -433,13 +444,13 @@ int goal()
     // ゴール方向に最短で向かうように
     if(relativeHeading(angle, goalAngle) > 0.0)
     {
-      motorL = 180;
-      motorR = -180;
+      motorL = 200;
+      motorR = -200;
     }
     else
     {
-      motorL = -180;
-      motorR = 180;
+      motorL = -200;
+      motorR = 200;
     }
     if (relativeHeading(angle, goalAngle) < 5.0 && relativeHeading(angle, goalAngle) > -5.0) // 目標方角に到達
       goalMode = 1;
