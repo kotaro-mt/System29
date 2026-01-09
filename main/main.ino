@@ -26,6 +26,7 @@ float x = 0.0, y = 0.0; // マップに対するXY座標(赤のラインの左�
 float ax = 0, ay = 0, az = 0; // 加速度センサーの値
 float goalAngle = 0.0f;// ゴール方向
 float avg_ax = 0;
+float distPrev = 0;
 boolean isBLUE=false;
 
 //　敵陣ロボ用
@@ -251,9 +252,14 @@ int search()
     motorR = -180;
     motorL = 180;
     if (dist < 40&&dist!=0)
-    {
-      searchMode = 2;
-      return 1;
+    { 
+      if(distPrev!=0&&dist>distPrev){
+        distPrev=0;
+        searchMode = 2;
+        return 1;
+      }
+      distPrev = dist;
+      
     }
     if (timeNow1 - timePrev1 > 300)
     {
@@ -298,7 +304,12 @@ int search()
     motorL = 180;
     if (dist < 40&&dist!=0)
     {
-      searchMode = 2;
+      if(distPrev!=0&&dist>distPrev){
+        distPrev=0;
+        searchMode = 2;
+        return 1;
+      }
+      distPrev = dist;
       return 1;
     }
     if (timeNow1 - timePrev1 > 573)
@@ -419,8 +430,17 @@ int goal()
   switch (goalMode)
   {
   case 0: // 回転
-    motorL = 180;
-    motorR = -180;
+    // ゴール方向に最短で向かうように
+    if(relativeHeading(angle, goalAngle) > 0.0)
+    {
+      motorL = 180;
+      motorR = -180;
+    }
+    else
+    {
+      motorL = -180;
+      motorR = 180;
+    }
     if (relativeHeading(angle, goalAngle) < 5.0 && relativeHeading(angle, goalAngle) > -5.0) // 目標方角に到達
       goalMode = 1;
     break;
